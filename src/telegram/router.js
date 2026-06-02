@@ -1,10 +1,11 @@
 'use strict';
 
-const axios    = require('axios');
+const axios      = require('axios');
 const { markSeen } = require('../db/store');
+const jsonEgress   = require('../output/jsonEgress');
 const logger       = require('../utils/logger');
 
-// ─── Stage 05: Telegram Router ─────────────────────────────────────────────
+// ─── Stage 05: Telegram Router + JSON Egress ───────────────────────────────
 
 function getTelegramUrl() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -12,60 +13,66 @@ function getTelegramUrl() {
   return `https://api.telegram.org/bot${token}`;
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// MESSAGE FORMATTER — exactly matching user-specified CRITICAL PIPELINE spec
+// Uses Telegram standard Markdown (* bold, _ italic)
+// ─────────────────────────────────────────────────────────────────────────
+
 /**
- * Format a scored job into a clean Telegram Markdown message.
- * Uses Telegram MarkdownV2-safe text (*bold*, _italic_).
- * @param {object} job  Scored job object from engine.js
- * @returns {string}
+ * Safe-escape for Telegram Markdown (non-V2).
+ * Escapes characters that break formatting without using MarkdownV2 syntax.
  */
-function formatMessage(job) {
+function esc(s) {
+  return String(s || '')
+    .replace(/\*/g, '')   // remove stray asterisks
+    .replace(/_/g, '')    // remove stray underscores that break italic
+    .replace(/`/g, "'")   // backtick → single quote
+    .trim();
+}
+
+/**
+ * Format a scored job into the CRITICAL PIPELINE Telegram Markdown payload.
+ *
+ * OUTPUT 1: TELEGRAM MARKDOWN PAYLOAD
+ */
+function formatTelegramMessage(job) {
   const { title, company, source, sourceUrl, scores, reasons, snapshot } = job;
-
-  // Escape characters that break Telegram Markdown (non-MarkdownV2 mode)
-  const esc = (s) => String(s)
-    .replace(/\*/g, '\\*')
-    .replace(/_/g, '\\_')
-    .replace(/`/g, '\\`')
-    .replace(/\[/g, '\\[');
-
-  // We use standard Markdown (not V2) to keep it compatible with parse_mode: 'Markdown'
-  const safeTitle   = title;
-  const safeCompany = company;
-  const [snap1, snap2] = snapshot;
+  const [snap1, snap2] = snapshot || ['', ''];
 
   return [
     `🏷️ *JOB HEADER*`,
-    `• *Position:* ${safeTitle}`,
-    `• *Company:* ${safeCompany}`,
-    `• *Source & Link:* [${source}](${sourceUrl})`,
+    `• *Position:* ${esc(title)}`,
+    `• *Company:* ${esc(company)}`,
+    `• *Source Platform:* ${esc(source)}`,
+    `• *Direct Application Link:* [Apply Here](${sourceUrl})`,
     ``,
     `📝 *OPERATIONAL SNAPSHOT*`,
-    `• ${snap1}`,
-    `• ${snap2}`,
+    `• ${esc(snap1)}`,
+    `• ${esc(snap2)}`,
     ``,
     `📊 *METRIC SCORE ANALYSIS*`,
-    `• *Salary Score* [${scores.salary}/10]: ${reasons.salary}`,
-    `• *Future Upgrade* [${scores.upgrade}/10]: ${reasons.upgrade}`,
-    `• *Skills Gained* [${scores.skills}/10]: ${reasons.skills}`,
-    `---`,
+    `• *Salary Score* [${scores.salary}/10]: ${esc(reasons.salary)}`,
+    `• *Future Upgrade* [${scores.upgrade}/10]: ${esc(reasons.upgrade)}`,
+    `• *Skills Gained* [${scores.skills}/10]: ${esc(reasons.skills)}`,
+    ``,
+    `━━━━━━━━━━━━━━━━━━━━━━━`,
   ].join('\n');
 }
 
 /**
- * Send a single scored job to the Telegram channel.
- * Marks the job as seen in SQLite after a successful send.
- *
- * @param {object} job     Scored job object
- * @param {boolean} dryRun If true, print to console instead of sending
+ * Send a single scored job to Telegram channel.
+ * On success: marks as seen in SQLite + writes to JSON egress.
  */
 async function sendJob(job, dryRun = false) {
-  const message = formatMessage(job);
+  const message = formatTelegramMessage(job);
   const chatId  = process.env.TELEGRAM_CHAT_ID;
 
   if (dryRun) {
     logger.info(`[DRY RUN] Would send to ${chatId}:`);
     console.log('\n' + message + '\n');
     markSeen(job.id, job.source, job.title);
+    // Also write to JSON egress in dry-run so dashboard data is populated
+    jsonEgress.appendJobs([job]);
     return true;
   }
 
@@ -81,7 +88,9 @@ async function sendJob(job, dryRun = false) {
 
     if (resp.data.ok) {
       markSeen(job.id, job.source, job.title);
-      logger.ok(`Sent to Telegram: "${job.title}" @ ${job.company}`);
+      // OUTPUT 2: Write to dashboard JSON egress
+      jsonEgress.appendJobs([job]);
+      logger.ok(`Sent: "${job.title}" @ ${job.company} → ${chatId}`);
       return true;
     }
     throw new Error(resp.data.description || 'Unknown Telegram error');
@@ -89,7 +98,7 @@ async function sendJob(job, dryRun = false) {
   } catch (err) {
     const errData = err.response?.data;
 
-    // Rate limit: wait and retry once
+    // Rate limit → wait and retry once
     if (errData?.error_code === 429) {
       const wait = (errData.parameters?.retry_after || 5) * 1000;
       logger.warn(`Telegram rate-limited. Waiting ${wait / 1000}s...`);
@@ -97,15 +106,16 @@ async function sendJob(job, dryRun = false) {
       return sendJob(job, dryRun);
     }
 
-    // Bad Request: message may have Markdown syntax issue — retry as plain text
+    // Bad Markdown → retry as plain text fallback
     if (errData?.error_code === 400) {
-      logger.warn(`Markdown error for "${job.title}", retrying as plain text...`);
+      logger.warn(`Markdown parse error for "${job.title}", retrying as plain text...`);
       try {
+        const plain = message.replace(/[*_`\[\]()]/g, '');
         await axios.post(`${getTelegramUrl()}/sendMessage`, {
-          chat_id: chatId,
-          text   : message.replace(/[*_`\[]/g, ''),
+          chat_id: chatId, text: plain,
         }, { timeout: 15000 });
         markSeen(job.id, job.source, job.title);
+        jsonEgress.appendJobs([job]);
         return true;
       } catch (e2) { /* fall through */ }
     }
@@ -116,9 +126,7 @@ async function sendJob(job, dryRun = false) {
 }
 
 /**
- * Send all scored jobs to Telegram, with a 3-second delay between messages
- * to respect Telegram's rate limits (30 messages/second to channels).
- *
+ * Send all scored jobs to Telegram with polite delay between posts.
  * @param {Array}   jobs
  * @param {boolean} dryRun
  * @returns {number} Count of successfully sent messages
@@ -132,19 +140,16 @@ async function sendAll(jobs, dryRun = false) {
   }
 
   let sent = 0;
-  const INTER_MESSAGE_DELAY = 3000; // 3 seconds between messages
+  const DELAY = 3000; // 3s between messages (Telegram rate: 30 msg/s for channels)
 
-  for (const job of jobs) {
-    const ok = await sendJob(job, dryRun);
+  for (let i = 0; i < jobs.length; i++) {
+    const ok = await sendJob(jobs[i], dryRun);
     if (ok) sent++;
-    // Polite delay between messages
-    if (jobs.indexOf(job) < jobs.length - 1) {
-      await new Promise(r => setTimeout(r, INTER_MESSAGE_DELAY));
-    }
+    if (i < jobs.length - 1) await new Promise(r => setTimeout(r, DELAY));
   }
 
   logger.ok(`Telegram routing complete: ${sent}/${jobs.length} messages sent`);
   return sent;
 }
 
-module.exports = { sendAll, formatMessage };
+module.exports = { sendAll, formatTelegramMessage };

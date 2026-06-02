@@ -4,257 +4,259 @@ const { hasSeen } = require('../db/store');
 const logger      = require('../utils/logger');
 
 // ─── Stage 03: Data Sanitizer & Filter ────────────────────────────────────
+// CRITICAL PIPELINE CONTROLS (per spec):
+//  Field: CS, IT, SE, CE, Sysadmin/Network Admin, MIS ONLY
+//  Level: 0 yrs exp, fresh graduate, entry level, internship
+//  Hard-reject: senior, lead, manager, director, 3+ years, experienced
 
-// ── Tech Field Keywords ───────────────────────────────────────────────────
-// A job TITLE must match at least one of these to qualify as a tech role.
-// Keep these SPECIFIC — avoid generic words like 'engineer' alone.
-const FIELD_KEYWORDS = [
-  // Software / Development
-  'software', 'developer', 'development', 'programmer', 'programming',
+// ══════════════════════════════════════════════════════════════════════════
+// GATE 0: HARD-REJECT PATTERNS — instant discard regardless of any other signal
+// ══════════════════════════════════════════════════════════════════════════
+const HARD_REJECT_PATTERNS = [
+  // Seniority in title or description
+  /\bsenior\b/i, /\blead\s+(developer|engineer|software|data|system)/i,
+  /\bteam\s+lead\b/i, /\btech\s+lead\b/i,
+  /\b(engineering|product|technical|IT|software|project)\s+manager\b/i,
+  /\bdirector\b/i, /\bcto\b/i, /\bvp\s+of\b/i, /\bhead\s+of\b/i,
+  /\bprinciple\s+(engineer|developer|architect)/i,
+  /\bstaff\s+(engineer|developer|scientist)/i,
+  /\barchitect\b(?!\s*intern)/i,   // "architect" but not "architect intern"
+  // Experience requirements — hard thresholds
+  /\b([3-9]|[1-9]\d+)\s*\+?\s*years?\s*(of\s+)?(work|relevant|professional|related)?\s*experience\b/i,
+  /minimum\s+(of\s+)?([3-9]|[1-9]\d+)\s*years?/i,
+  /at\s+least\s+([3-9]|[1-9]\d+)\s*years?/i,
+  /([3-9]|[1-9]\d+)\+\s*years?/i,
+  // Explicit experienced professional signals
+  /\bexperienced\s+professional\b/i,
+  /proven\s+(track\s+record|experience)\s+of\s+\d+/i,
+];
+
+// ══════════════════════════════════════════════════════════════════════════
+// GATE 1: TECH FIELD VALIDATION — STRICT (CS/IT/SE/CE/Sysadmin/MIS only)
+// ══════════════════════════════════════════════════════════════════════════
+
+// These keywords must appear in the JOB TITLE to qualify
+const TECH_TITLE_KEYWORDS = [
+  // Software Engineering / Development
+  'software', 'developer', 'development', 'programmer', 'coding',
   'software engineer', 'software developer',
-  // IT specific
-  'information technology', 'it officer', 'it support', 'it technician',
-  'ict officer', 'ict support',
+  // IT / ICT
+  'information technology', 'it officer', 'it support', 'it specialist',
+  'it technician', 'ict officer', 'ict support', 'ict specialist',
   // Web / Mobile
-  'web developer', 'web designer', 'mobile developer', 'mobile app',
+  'web developer', 'web designer', 'web engineer',
+  'mobile developer', 'mobile app', 'app developer',
   'frontend', 'front-end', 'front end',
   'backend', 'back-end', 'back end',
-  'full.?stack', 'fullstack',
+  'full stack', 'full-stack', 'fullstack',
+  // Computer Science / Engineering
+  'computer science', 'computer engineering',
+  // Systems / Network / MIS
+  'system admin', 'systems admin', 'sysadmin', 'system administrator',
+  'network admin', 'network administrator', 'network engineer',
+  'management information system', 'mis officer', 'mis analyst',
+  'database admin', 'database developer', 'database engineer',
   // Specializations
   'devops', 'cloud engineer', 'site reliability',
-  'data analyst', 'data science', 'machine learning', 'ml engineer',
-  'artificial intelligence', 'ai engineer',
-  'network engineer', 'network admin', 'system admin', 'sysadmin',
-  'database admin', 'database developer', '\\bdba\\b',
-  'cybersecurity', 'cyber security', 'security analyst',
-  'ui.?ux', 'ux designer', 'product designer',
-  // Languages & Frameworks (as job titles)
-  'flutter developer', 'react developer', 'node developer',
-  'python developer', 'java developer', 'php developer',
-  'laravel developer', 'django developer', 'android developer',
-  'ios developer', 'kotlin developer',
-  // Support / Tech roles
-  'helpdesk', 'help desk', 'tech support', 'it helpdesk',
-  // ERP
-  'erp consultant', 'sap consultant', 'odoo developer',
-  // Computer Science
-  'computer science', 'computer engineering',
+  'data analyst', 'data scientist', 'data engineer', 'ml engineer',
+  'machine learning', 'artificial intelligence', 'ai engineer',
+  'cybersecurity', 'cyber security', 'security analyst', 'security engineer',
+  'ui/ux', 'ui ux', 'ux designer', 'product designer',
+  // Specific language/framework roles
+  'flutter', 'react', 'node.js', 'nodejs', 'python', 'java', 'php',
+  'laravel', 'django', 'android', 'ios', 'kotlin', 'swift',
+  '.net developer', 'erp developer', 'odoo', 'sap consultant',
+  // Support
+  'helpdesk', 'help desk', 'tech support', 'technical support',
+  'it helpdesk', 'it help desk',
 ];
 
-// ── Hard-Reject Title Patterns ────────────────────────────────────────────
-// Titles matching these are ALWAYS non-tech — reject regardless of category.
-const NON_TECH_TITLE_PATTERNS = [
-  /shot\s*firer/i, /electrician/i, /electrical\s+engineer/i,
-  /tiktok/i, /beautiful\s*girl/i, /model\s*recruit/i,
-  /driver/i, /accountant/i, /accounting/i, /finance\s+officer/i,
-  /nurse/i, /midwife/i, /health\s+(officer|provider|worker|care)/i,
-  /construction/i, /civil\s+engineer/i, /architect/i,
-  /secretary/i, /receptionist/i, /cashier/i, /cleaner/i,
-  /cook\b/i, /chef\b/i, /waiter/i, /bartender/i,
-  /sales\s+(rep|agent|officer)/i, /marketing\s+officer/i,
-  /procurement/i, /logistics/i, /warehouse/i, /supply\s+chain/i,
-  /auditor/i, /tax\s+officer/i, /legal\s+officer/i,
-  /teacher\b/i, /instructor\b(?!.*coding)/i, /trainer(?!.*it|.*tech|.*software)/i,
-  /guard\b/i, /security\s+officer/i, /janitor/i, /cleaner/i,
+// Non-tech title patterns — ALWAYS discard (overrides category tag)
+const NON_TECH_TITLE_REJECT = [
+  /\belectrical\s+engineer\b/i, /\belectrician\b/i,
+  /\bcivil\s+engineer\b/i, /\bmechanical\s+engineer\b/i,
+  /\bchemical\s+engineer\b/i, /\bfire\b.{0,10}(safety|officer)/i,
+  /\bshot\s*firer\b/i, /\bmining\b/i, /\bgeologist\b/i,
+  /\baccountant\b/i, /\baccounting\b/i, /\bauditor\b/i, /\bfinance\s+officer\b/i,
+  /\bnurse\b/i, /\bmidwife\b/i, /\bpharmacist\b/i, /\bphysician\b/i,
+  /\bdoctor\b/i, /\bmedical\b/i, /\bhealth\s+(officer|worker)\b/i,
+  /\bdriver\b/i, /\bsecretary\b/i, /\breceptionist\b/i, /\bcashier\b/i,
+  /\bchef\b/i, /\bcook\b/i, /\bwaiter\b/i, /\bbartender\b/i,
+  /\bcleaner\b/i, /\bjanitor\b/i, /\bguard\b/i, /\bsecurity\s+officer\b/i,
+  /\bteacher\b/i, /\bprocurement\b/i, /\blogistics\b/i, /\bwarehouse\b/i,
+  /\bmarketing\s+officer\b/i, /\bsales\s+(rep|agent|officer)\b/i,
+  /tiktok/i, /beautiful\s+girl/i, /model\s+recruit/i,
 ];
 
-// ── Entry-Level / Fresh-Graduate Keywords ─────────────────────────────────
-// A job must match at least one of these to qualify.
+// ══════════════════════════════════════════════════════════════════════════
+// GATE 2: ENTRY-LEVEL VALIDATION
+// ══════════════════════════════════════════════════════════════════════════
+
 const ENTRY_KEYWORDS = [
-  '0 year',
-  'zero year',
-  'no experience',
-  'no prior experience',
-  'fresh graduate',
-  'fresh grad',
-  'newly graduate',
-  'recent graduate',
-  'entry.?level',
-  'entry level',
-  '\\bintern\\b',
-  'internship',
-  'trainee',
-  'graduate trainee',
-  'junior',                       // often implies <1 yr
-  'career_level.*entry',          // Ethiojobs structured field
+  '0 year', 'zero year', 'no experience', 'no prior experience',
+  'fresh graduate', 'fresh grad', 'newly graduate', 'recent graduate',
+  'newly graduated', 'entry.?level', 'entry level',
+  '\\bintern\\b', 'internship', 'trainee', 'graduate trainee',
+  '\\bjunior\\b', 'career_level.*entry',
 ];
 
-// ── Disqualifier Keywords ─────────────────────────────────────────────────
-// If any of these patterns are found, the job is discarded.
-// We look for "N years" where N >= 1.
-const DISQUALIFIER_PATTERNS = [
-  /\b([1-9]\d*)\s*[\+\-]?\s*years?\s*(of\s+)?(relevant\s+)?(work\s+)?experience/i,
+const ENTRY_RX = ENTRY_KEYWORDS.map(p => new RegExp(p, 'i'));
+
+// Career labels that hard-reject (Ethiojobs structured field)
+const SENIOR_CAREER_LABELS = [
+  /mid.?level.*[3-9]/i, /senior/i, /manager/i,
+  /executive/i, /director/i, /head\s+of/i,
+];
+
+// ══════════════════════════════════════════════════════════════════════════
+// GATE 3: EXPERIENCE REQUIREMENT — discard if requires ≥1 year
+// ══════════════════════════════════════════════════════════════════════════
+
+const EXP_DISQUALIFIERS = [
+  /\b([1-9]\d*)\s*[\+\-]?\s*years?\s*(of\s+)?(relevant\s+)?(work\s+)?experience\b/i,
   /minimum\s+of\s+([1-9]\d*)\s*years?/i,
   /at\s+least\s+([1-9]\d*)\s*years?/i,
-  /([1-9]\d*)\s*[\+]\s*years?/i,
-  // Career level labels that indicate mid/senior
-  /mid[\s\-]?level\s*\(\s*[3-9]/i,
-  /senior\s+level/i,
-  /managerial\s+level/i,
-  /executive\s+level/i,
+  /([1-9]\d*)\s*[\+]\s*years?\b/i,
+  /senior\s+level/i, /managerial\s+level/i, /executive\s+level/i,
 ];
 
-// ── Ethiojobs structured career level IDs that map to non-entry ───────────
-// From the scraped data: career_level 2 = "Mid Level(3-5 years)"
-// Entry level is typically career_level 0 or 1. We'll be conservative
-// and only allow career_level 0 or if label contains "entry" or "intern".
-const DISQUALIFY_CAREER_LABELS = [
-  /mid.?level.*[3-9]/i,
-  /senior/i,
-  /manager/i,
-  /executive/i,
-  /director/i,
-  /head\s+of/i,
-];
+// ── Helper functions ──────────────────────────────────────────────────────
 
-/**
- * Build a compiled regex list from an array of pattern strings.
- */
-function buildRegexList(patterns) {
-  return patterns.map(p => new RegExp(p, 'i'));
-}
-
-const FIELD_RX   = buildRegexList(FIELD_KEYWORDS);
-const ENTRY_RX   = buildRegexList(ENTRY_KEYWORDS);
-
-/**
- * Check if a string matches any regex in a list.
- */
-function matchesAny(text, regexList) {
-  return regexList.some(rx => rx.test(text));
+function matchesAny(text, rxList) {
+  return rxList.some(rx => rx.test(text));
 }
 
 /**
- * Check if the job title qualifies as a tech field.
- * Logic:
- *  1. Reject immediately if title matches a known non-tech pattern.
- *  2. Accept if title matches a specific tech keyword.
- *  3. For Jiji/Kebenajob (hardcoded 'Information Technology' category),
- *     only trust the TITLE — not the category — to prevent false positives.
+ * GATE 0: Hard-reject check — senior/lead/manager/director/3+yrs instantly discarded.
+ */
+function isHardRejected(job) {
+  const fullText = [job.title, job.description, job.careerLevel].join(' ');
+  return HARD_REJECT_PATTERNS.some(rx => rx.test(fullText));
+}
+
+/**
+ * GATE 1: Tech field check — title must match a specific tech keyword.
+ * Non-tech title patterns are always rejected.
  */
 function isTechField(job) {
   const title = (job.title || '').toLowerCase();
 
-  // Hard reject: explicit non-tech titles
-  if (NON_TECH_TITLE_PATTERNS.some(rx => rx.test(title))) return false;
+  // Always reject explicitly non-tech titles
+  if (NON_TECH_TITLE_REJECT.some(rx => rx.test(title))) return false;
 
-  // Accept: title matches a specific tech keyword
-  if (matchesAny(title, FIELD_RX)) return true;
+  // Must match a specific tech keyword in title
+  if (TECH_TITLE_KEYWORDS.some(kw => title.includes(kw))) return true;
 
-  // For Ethiojobs: also trust the catalog categories
-  if (job.source === 'Ethiojobs' && job.categories && job.categories.length > 0) {
-    const catText = job.categories.join(' ').toLowerCase();
-    if (matchesAny(catText, FIELD_RX)) return true;
+  // For Ethiojobs: also trust the structured IT catalog category
+  if (job.source === 'Ethiojobs' && job.categories?.length > 0) {
+    const cats = job.categories.join(' ').toLowerCase();
+    if (TECH_TITLE_KEYWORDS.some(kw => cats.includes(kw))) return true;
   }
 
   return false;
 }
 
 /**
- * Check if the job description / career level indicates entry-level.
+ * GATE 2: Entry-level check.
  * Strategy:
- *  1. If Ethiojobs provides a structured career level label → use it strictly.
- *  2. If no structured label (HTML scrapers) → check text for ENTRY_KEYWORDS.
- *  3. If still no signal → allow through IF no disqualifier text exists.
- *     The experience disqualifier gate (Gate 3) will then be the final arbiter.
+ *  1. Structured career level label (Ethiojobs) → trust it
+ *  2. Text keywords in title/desc → trust them
+ *  3. No label + no keyword → allow through (Gate 3 will discard if exp required)
  */
 function isEntryLevel(job) {
   const levelLabel = (job.careerLevel || '').toLowerCase();
 
-  // ── Structured label available (Ethiojobs) ─────────────────────────
   if (levelLabel) {
-    // Explicit positive signals
+    // Positive structured signal
     if (levelLabel.includes('entry') || levelLabel.includes('intern') ||
         levelLabel.includes('fresh') || levelLabel.includes('trainee') ||
-        levelLabel.includes('junior')) {
-      return true;
-    }
-    // Explicit disqualifier
-    if (DISQUALIFY_CAREER_LABELS.some(rx => rx.test(levelLabel))) {
-      return false;
-    }
+        levelLabel.includes('junior')) return true;
+    // Negative structured signal
+    if (SENIOR_CAREER_LABELS.some(rx => rx.test(levelLabel))) return false;
   }
 
-  // ── Text-based check (all sources) ─────────────────────────────────
+  // Free-text keyword check
   const text = [job.title, job.description].join(' ');
   if (matchesAny(text, ENTRY_RX)) return true;
 
-  // ── No structured label + no entry keyword found ────────────────────
-  // For HTML-scraped jobs where experience level isn't listed:
-  // Allow through — Gate 3 (hasExperienceRequirement) will discard any
-  // job that explicitly demands ≥1 year in its description text.
+  // No label and no keyword → allow through (Gate 3 catches 1+ yr requirements)
   if (!levelLabel) return true;
 
   return false;
 }
 
 /**
- * Return true if the job clearly requires ≥1 year of experience.
- * This is a hard discard.
+ * GATE 3: Experience requirement check — discard if clearly requires ≥1 yr.
  */
 function hasExperienceRequirement(job) {
   const text = [job.title, job.description, job.careerLevel].join(' ');
-
-  for (const pattern of DISQUALIFIER_PATTERNS) {
-    if (pattern.test(text)) {
-      return true;
-    }
-  }
-  return false;
+  return EXP_DISQUALIFIERS.some(rx => rx.test(text));
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// MAIN FILTER
+// ══════════════════════════════════════════════════════════════════════════
+
 /**
- * Main filter function. Returns only jobs that:
- *  1. Match a tech field
- *  2. Are entry-level / fresh-graduate / intern
- *  3. Do NOT require ≥1 year of experience
- *  4. Have NOT already been sent (SQLite dedup check)
- *
- * @param {Array} jobs  Raw normalized jobs from ingestion
- * @returns {Array}     Filtered jobs ready for scoring
+ * Filter jobs through all CRITICAL PIPELINE CONTROLS:
+ *  Gate 0: Hard-reject (senior/lead/3+yrs) — instant discard
+ *  Gate 1: Tech field (CS/IT/SE/CE/Sysadmin/MIS only)
+ *  Gate 2: Entry level / fresh grad / intern / 0 yrs
+ *  Gate 3: No explicit ≥1yr experience requirement
+ *  Gate 4: Dedup (SQLite — not re-sent)
  */
 function sanitize(jobs) {
   logger.step('📐', `Sanitizing ${jobs.length} ingested jobs...`);
 
-  const results = [];
-  let   skippedField  = 0;
-  let   skippedLevel  = 0;
-  let   skippedExpReq = 0;
-  let   skippedDedup  = 0;
+  const results        = [];
+  let skippedHard      = 0;
+  let skippedField     = 0;
+  let skippedLevel     = 0;
+  let skippedExpReq    = 0;
+  let skippedDedup     = 0;
 
   for (const job of jobs) {
-    // ── Gate 1: Must be a tech-field role ──────────────────────────────
+    // Gate 0: Hard reject
+    if (isHardRejected(job)) {
+      skippedHard++;
+      continue;
+    }
+
+    // Gate 1: Tech field
     if (!isTechField(job)) {
       skippedField++;
       continue;
     }
 
-    // ── Gate 2: Must signal entry-level ────────────────────────────────
+    // Gate 2: Entry level
     if (!isEntryLevel(job)) {
       skippedLevel++;
       continue;
     }
 
-    // ── Gate 3: Must NOT demand ≥1 year of experience ──────────────────
+    // Gate 3: Experience requirement
     if (hasExperienceRequirement(job)) {
       skippedExpReq++;
-      logger.dim(`  ✗ Discarded (exp req): ${job.title} @ ${job.company}`);
+      logger.dim(`  ✗ Exp-required: ${job.title} @ ${job.company}`);
       continue;
     }
 
-    // ── Gate 4: Dedup check against SQLite ─────────────────────────────
+    // Gate 4: Dedup
     if (hasSeen(job.id)) {
       skippedDedup++;
       continue;
     }
 
     results.push(job);
-    logger.dim(`  ✓ Passed:   ${job.title} @ ${job.company} [${job.source}]`);
+    logger.dim(`  ✓ Passed: ${job.title} @ ${job.company} [${job.source}]`);
   }
 
-  logger.ok(`Filter results: ${results.length} qualified | ` +
-    `${skippedField} not-tech | ${skippedLevel} not-entry | ` +
-    `${skippedExpReq} exp-required | ${skippedDedup} already-sent`);
+  logger.ok(
+    `Filter: ${results.length} qualified | ` +
+    `${skippedHard} hard-rejected | ${skippedField} non-tech | ` +
+    `${skippedLevel} non-entry | ${skippedExpReq} exp-required | ` +
+    `${skippedDedup} already-sent`
+  );
 
   return results;
 }
