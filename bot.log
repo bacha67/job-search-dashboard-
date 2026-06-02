@@ -1,0 +1,77 @@
+
+[1m[36m⏱️  Scheduler started — cron: "0 */6 * * *"[0m
+[2m[06/02/2026, 14:56:39][0m [1m[34m[INFO ][0m [37mRunning first pipeline cycle immediately on startup...[0m
+
+[1m[36m⚡  ═══════════════════════════════════════════════[0m
+
+[1m[36m⚡    ETHIOPIAN TECH JOB BOT — PIPELINE START[0m
+
+[1m[36m⚡  ═══════════════════════════════════════════════[0m
+
+[1m[36m📡  Starting data ingestion from all portals...[0m
+
+[1m[36m🌐  Scraping Ethiojobs...[0m
+[2m    Fetching: https://ethiojobs.net/jobs[0m
+[2m[06/02/2026, 14:56:39][0m [1m[34m[INFO ][0m [37mBot is running. Press Ctrl+C to stop.
+[0m
+[2m    Found 12 raw jobs at https://ethiojobs.net/jobs[0m
+[2m    IT-relevant: 0/12 after catalog filter[0m
+[2m    Fetching: https://ethiojobs.net/jobs?page=2[0m
+[2m    Found 12 raw jobs at https://ethiojobs.net/jobs?page=2[0m
+[2m    IT-relevant: 3/12 after catalog filter[0m
+[2m[06/02/2026, 14:57:00][0m [1m[33m[WARN ][0m [37m[Ethiojobs] Detail fetch failed for Na85MRjFjM-office-engineer: timeout of 15000ms exceeded[0m
+[2m[06/02/2026, 14:57:17][0m [1m[33m[WARN ][0m [37m[Ethiojobs] Detail fetch failed for DTeQ4INWZc-contract-administrator-and-tender-engineer: timeout of 15000ms exceeded[0m
+[2m    Fetching: https://ethiojobs.net/jobs?page=3[0m
+[2m    Found 12 raw jobs at https://ethiojobs.net/jobs?page=3[0m
+[2m    IT-relevant: 2/12 after catalog filter[0m
+[2m[06/02/2026, 14:57:39][0m [1m[32m[OK   ][0m [37m[Ethiojobs] Scraped 5 IT jobs total[0m
+[2m[06/02/2026, 14:57:39][0m [1m[32m[OK   ][0m [37mIngested 5 jobs from Ethiojobs[0m
+
+[1m[36m🌐  Scraping Jiji...[0m
+[2m    Fetching: https://jiji.com.et/jobs?query=software+developer+ethiopia[0m
+[2m    Found 1 job cards at https://jiji.com.et/jobs?query=software+developer+ethiopia[0m
+[2m    Fetching: https://jiji.com.et/jobs?query=IT+officer+ethiopia[0m
+[2m    Found 2 job cards at https://jiji.com.et/jobs?query=IT+officer+ethiopia[0m
+[2m    Fetching: https://jiji.com.et/jobs?query=junior+developer+ethiopia[0m
+[2m    Found 0 job cards at https://jiji.com.et/jobs?query=junior+developer+ethiopia[0m
+[2m    Fetching: https://jiji.com.et/jobs?query=intern+developer+ethiopia[0m
+[2m    Found 0 job cards at https://jiji.com.et/jobs?query=intern+developer+ethiopia[0m
+[2m    Fetching: https://jiji.com.et/jobs?query=web+developer+ethiopia[0m
+[2m    Found 1 job cards at https://jiji.com.et/jobs?query=web+developer+ethiopia[0m
+[2m[06/02/2026, 14:58:07][0m [1m[32m[OK   ][0m [37m[Jiji] Scraped 4 jobs total[0m
+[2m[06/02/2026, 14:58:07][0m [1m[32m[OK   ][0m [37mIngested 4 jobs from Jiji[0m
+
+[1m[36m🌐  Scraping Kebenajob...[0m
+[2m    Fetching: https://kebenajobs.com/job-list/[0m
+[2m    Found 0 posts at https://kebenajobs.com/job-list/[0m
+[2m    Fetching: https://kebenajobs.com/[0m
+[2m    Found 20 posts at https://kebenajobs.com/[0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37m[Kebenajob] Scraped 10 job positions total[0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37mIngested 10 jobs from Kebenajob[0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37mTotal ingested: 19 jobs from all portals[0m
+
+[1m[36m📐  Sanitizing 19 ingested jobs...[0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37mSQLite store ready at /Users/shadow/Desktop/job-search/seen_jobs.sqlite[0m
+[2m    ✓ Passed:   Website Developer @ Via Jiji Ethiopia [Jiji][0m
+[2m    ✓ Passed:   Website Developer In Ethiopia @ Via Jiji Ethiopia [Jiji][0m
+[2m    ✓ Passed:   Integrated Service on Health and Development Organization @ Integrated Service on Health and Development Organization [Kebenajob][0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37mFilter results: 3 qualified | 16 not-tech | 0 not-entry | 0 exp-required | 0 already-sent[0m
+
+[1m[36m🧠  Scoring 3 qualifying job(s)...[0m
+[2m[06/02/2026, 14:58:44][0m [1m[32m[OK   ][0m [37mTop job this cycle: "Website Developer In Ethiopia" @ Via Jiji Ethiopia [S:5 U:6 K:1][0m
+
+[1m[36m🚀  Routing 3 job(s) to Telegram...[0m
+[2m[06/02/2026, 14:58:47][0m [1m[32m[OK   ][0m [37mSent to Telegram: "Website Developer In Ethiopia" @ Via Jiji Ethiopia[0m
+[2m[06/02/2026, 14:58:51][0m [1m[32m[OK   ][0m [37mSent to Telegram: "Website Developer" @ Via Jiji Ethiopia[0m
+[2m[06/02/2026, 14:58:54][0m [1m[32m[OK   ][0m [37mSent to Telegram: "Integrated Service on Health and Development Organization" @ Integrated Service on Health and Development Organization[0m
+[2m[06/02/2026, 14:58:54][0m [1m[32m[OK   ][0m [37mTelegram routing complete: 3/3 messages sent[0m
+
+[1m[36m📈  Pipeline Complete[0m
+[2m    Total ingested  : 19[0m
+[2m    Passed filter   : 3[0m
+[2m    Sent to channel : 3[0m
+[2m    All-time seen   : 2[0m
+[2m    Elapsed         : 134.9s[0m
+
+[1m[36m⚡  ═══════════════════════════════════════════════
+[0m
