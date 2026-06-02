@@ -1,6 +1,6 @@
 
 [1m[36m⏱️  Scheduler started — cron: "0 */6 * * *"[0m
-[2m[06/02/2026, 17:27:53][0m [1m[34m[INFO ][0m [37mRunning first pipeline cycle immediately on startup...[0m
+[2m[06/02/2026, 21:12:31][0m [1m[34m[INFO ][0m [37mRunning first pipeline cycle immediately on startup...[0m
 
 [1m[36m⚡  ═══════════════════════════════════════════════[0m
 
@@ -12,18 +12,18 @@
 
 [1m[36m🌐  Scraping Ethiojobs...[0m
 [2m    Fetching: https://ethiojobs.net/jobs[0m
-[2m[06/02/2026, 17:27:54][0m [1m[34m[INFO ][0m [37mBot is running. Press Ctrl+C to stop.
+[2m[06/02/2026, 21:12:31][0m [1m[34m[INFO ][0m [37mBot is running. Press Ctrl+C to stop.
 [0m
 [2m    Found 12 raw jobs at https://ethiojobs.net/jobs[0m
-[2m    IT-relevant: 2/12 after catalog filter[0m
+[2m    IT-relevant: 3/12 after catalog filter[0m
 [2m    Fetching: https://ethiojobs.net/jobs?page=2[0m
 [2m    Found 12 raw jobs at https://ethiojobs.net/jobs?page=2[0m
-[2m    IT-relevant: 0/12 after catalog filter[0m
+[2m    IT-relevant: 2/12 after catalog filter[0m
 [2m    Fetching: https://ethiojobs.net/jobs?page=3[0m
 [2m    Found 12 raw jobs at https://ethiojobs.net/jobs?page=3[0m
-[2m    IT-relevant: 1/12 after catalog filter[0m
-[2m[06/02/2026, 17:28:18][0m [1m[32m[OK   ][0m [37m[Ethiojobs] Scraped 3 IT jobs total[0m
-[2m[06/02/2026, 17:28:18][0m [1m[32m[OK   ][0m [37mIngested 3 jobs from Ethiojobs[0m
+[2m    IT-relevant: 0/12 after catalog filter[0m
+[2m[06/02/2026, 21:13:07][0m [1m[32m[OK   ][0m [37m[Ethiojobs] Scraped 5 IT jobs total[0m
+[2m[06/02/2026, 21:13:07][0m [1m[32m[OK   ][0m [37mIngested 5 jobs from Ethiojobs[0m
 
 [1m[36m🌐  Scraping ETcareers...[0m
 [2m    Fetching: https://etcareers.com/jobs?category_id=5283[0m
@@ -36,16 +36,17 @@
 [2m    Found 1 job cards at https://etcareers.com/jobs?q=developer[0m
 [2m    Fetching: https://etcareers.com/jobs?q=software+engineer[0m
 [2m    Found 1 job cards at https://etcareers.com/jobs?q=software+engineer[0m
-[2m[06/02/2026, 17:30:46][0m [1m[32m[OK   ][0m [37m[ETcareers] Scraped 30 jobs total[0m
-[2m[06/02/2026, 17:30:46][0m [1m[32m[OK   ][0m [37mIngested 30 jobs from ETcareers[0m
+[2m[06/02/2026, 21:17:09][0m [1m[32m[OK   ][0m [37m[ETcareers] Scraped 30 jobs total[0m
+[2m[06/02/2026, 21:17:09][0m [1m[32m[OK   ][0m [37mIngested 30 jobs from ETcareers[0m
 
 [1m[36m🌐  Scraping Kebenajob...[0m
 [2m    Fetching: https://kebenajobs.com/job-list/[0m
 [2m    Found 0 posts at https://kebenajobs.com/job-list/[0m
 [2m    Fetching: https://kebenajobs.com/[0m
 [2m    Found 20 posts at https://kebenajobs.com/[0m
-[2m[06/02/2026, 17:31:25][0m [1m[32m[OK   ][0m [37m[Kebenajob] Scraped 10 job positions total[0m
-[2m[06/02/2026, 17:31:25][0m [1m[32m[OK   ][0m [37mIngested 10 jobs from Kebenajob[0m
+[2m[06/02/2026, 21:17:52][0m [1m[33m[WARN ][0m [37m[Kebenajob] Detail fetch failed for https://kebenajobs.com/china-communications-construction-company-cccc-may-29-26/: aborted[0m
+[2m[06/02/2026, 21:18:58][0m [1m[32m[OK   ][0m [37m[Kebenajob] Scraped 9 job positions total[0m
+[2m[06/02/2026, 21:18:58][0m [1m[32m[OK   ][0m [37mIngested 9 jobs from Kebenajob[0m
 
 [1m[36m🌐  Scraping Jiji...[0m
 [2m    Fetching: https://jiji.com.et/jobs?query=software+developer+ethiopia[0m
@@ -58,8 +59,8 @@
 [2m    Found 0 job cards at https://jiji.com.et/jobs?query=intern+developer+ethiopia[0m
 [2m    Fetching: https://jiji.com.et/jobs?query=web+developer+ethiopia[0m
 [2m    Found 1 job cards at https://jiji.com.et/jobs?query=web+developer+ethiopia[0m
-[2m[06/02/2026, 17:31:52][0m [1m[32m[OK   ][0m [37m[Jiji] Scraped 4 jobs total[0m
-[2m[06/02/2026, 17:31:52][0m [1m[32m[OK   ][0m [37mIngested 4 jobs from Jiji[0m
+[2m[06/02/2026, 21:19:24][0m [1m[32m[OK   ][0m [37m[Jiji] Scraped 4 jobs total[0m
+[2m[06/02/2026, 21:19:24][0m [1m[32m[OK   ][0m [37mIngested 4 jobs from Jiji[0m
 
 [1m[36m🌐  Scraping Afriwork...[0m
 [2m    Trying API: https://www.afriwork.com/jobs.json[0m
@@ -71,9 +72,9 @@
 [2m    Trying HTML: https://www.afriwork.com/search?q=it+officer&type=job[0m
 [2m    Found 0 job cards at https://www.afriwork.com/search?q=it+officer&type=job[0m
 [2m    Trying HTML: https://www.afriwork.com/search?q=web+developer&type=job[0m
-[2m    Found 0 job cards at https://www.afriwork.com/search?q=web+developer&type=job[0m
-[2m[06/02/2026, 17:32:07][0m [1m[32m[OK   ][0m [37m[Afriwork] Scraped 0 jobs total[0m
-[2m[06/02/2026, 17:32:07][0m [1m[32m[OK   ][0m [37mIngested 0 jobs from Afriwork[0m
+[2m[06/02/2026, 21:19:42][0m [1m[33m[WARN ][0m [37m[Afriwork] https://www.afriwork.com/search?q=web+developer&type=job blocked: socket hang up[0m
+[2m[06/02/2026, 21:19:44][0m [1m[32m[OK   ][0m [37m[Afriwork] Scraped 0 jobs total[0m
+[2m[06/02/2026, 21:19:44][0m [1m[32m[OK   ][0m [37mIngested 0 jobs from Afriwork[0m
 
 [1m[36m🌐  Scraping GeezJobs...[0m
 [2m    Trying: https://geezjobs.com/feed[0m
@@ -84,36 +85,39 @@
 [2m    Trying: https://geezjobs.com/vacancies[0m
 [2m    Trying: https://geezjobs.com/jobs/?category=it[0m
 [2m    Trying: https://geezjobs.com/jobs/?category=software[0m
-[2m[06/02/2026, 17:32:23][0m [1m[33m[WARN ][0m [37m[GeezJobs] All endpoints blocked or returned no jobs — skipping[0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37m[GeezJobs] Scraped 0 jobs total[0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37mIngested 0 jobs from GeezJobs[0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37mTotal ingested: 47 jobs from all 6 portals[0m
+[2m[06/02/2026, 21:20:23][0m [1m[33m[WARN ][0m [37m[GeezJobs] All endpoints blocked or returned no jobs — skipping[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37m[GeezJobs] Scraped 0 jobs total[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37mIngested 0 jobs from GeezJobs[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37mTotal ingested: 48 jobs from all 6 portals[0m
 
-[1m[36m📐  Sanitizing 47 ingested jobs...[0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37mSQLite store ready at /Users/shadow/Desktop/job-search/seen_jobs.sqlite[0m
+[1m[36m📐  Sanitizing 48 ingested jobs...[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37mSQLite store ready at /Users/shadow/Desktop/job-search/seen_jobs.sqlite[0m
+[2m    ✓ Passed: IT Operations and System Security Junior Officer @ Yehulu SACCOS LTD [Ethiojobs][0m
+[2m    ✓ Passed: IT Infrastructure Officer @ Yehulu SACCOS LTD [Ethiojobs][0m
+[2m    ✓ Passed: WASH Intern at Norwegian Church Aid (NCA) @ Talent Search - Ethiojobs [Ethiojobs][0m
 [2m    ✓ Passed: IT & Innovation Officer @ Fama Import Export [Ethiojobs][0m
-[2m    ✓ Passed: Website Developer @ Via Jiji Ethiopia [Jiji][0m
-[2m    ✓ Passed: Website Developer In Ethiopia @ Via Jiji Ethiopia [Jiji][0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37mFilter: 3 qualified | 28 hard-rejected | 16 non-tech | 0 non-entry | 0 exp-required | 0 already-sent[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37mFilter: 4 qualified | 28 hard-rejected | 14 non-tech | 0 non-entry | 0 exp-required | 2 already-sent[0m
 
-[1m[36m🧠  Scoring 3 qualifying job(s)...[0m
-[2m[06/02/2026, 17:32:23][0m [1m[32m[OK   ][0m [37mTop job this cycle: "IT & Innovation Officer" @ Fama Import Export [S:5 U:5 K:2][0m
+[1m[36m🧠  Scoring 4 qualifying job(s)...[0m
+[2m[06/02/2026, 21:20:23][0m [1m[32m[OK   ][0m [37mTop job this cycle: "IT & Innovation Officer" @ Fama Import Export [S:5 U:5 K:2][0m
 
-[1m[36m🚀  Routing 3 job(s) to Telegram...[0m
-[2m[06/02/2026, 17:32:25][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
-[2m[06/02/2026, 17:32:25][0m [1m[32m[OK   ][0m [37mSent: "IT & Innovation Officer" @ Fama Import Export → @Ethio_Fresh_Jobs[0m
-[2m[06/02/2026, 17:32:28][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
-[2m[06/02/2026, 17:32:28][0m [1m[32m[OK   ][0m [37mSent: "Website Developer In Ethiopia" @ Via Jiji Ethiopia → @Ethio_Fresh_Jobs[0m
-[2m[06/02/2026, 17:32:31][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
-[2m[06/02/2026, 17:32:31][0m [1m[32m[OK   ][0m [37mSent: "Website Developer" @ Via Jiji Ethiopia → @Ethio_Fresh_Jobs[0m
-[2m[06/02/2026, 17:32:31][0m [1m[32m[OK   ][0m [37mTelegram routing complete: 3/3 messages sent[0m
+[1m[36m🚀  Routing 4 job(s) to Telegram...[0m
+[2m  [JSON Egress] No new jobs to write (all already stored)[0m
+[2m[06/02/2026, 21:20:32][0m [1m[32m[OK   ][0m [37mSent: "IT & Innovation Officer" @ Fama Import Export → @Ethio_Fresh_Jobs[0m
+[2m[06/02/2026, 21:20:35][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
+[2m[06/02/2026, 21:20:35][0m [1m[32m[OK   ][0m [37mSent: "IT Operations and System Security Junior Officer" @ Yehulu SACCOS LTD → @Ethio_Fresh_Jobs[0m
+[2m[06/02/2026, 21:20:38][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
+[2m[06/02/2026, 21:20:38][0m [1m[32m[OK   ][0m [37mSent: "IT Infrastructure Officer" @ Yehulu SACCOS LTD → @Ethio_Fresh_Jobs[0m
+[2m[06/02/2026, 21:20:42][0m [1m[32m[OK   ][0m [37m[JSON Egress] Wrote 1 new jobs to /Users/shadow/Desktop/job-search/data/jobs.json[0m
+[2m[06/02/2026, 21:20:42][0m [1m[32m[OK   ][0m [37mSent: "WASH Intern at Norwegian Church Aid (NCA)" @ Talent Search - Ethiojobs → @Ethio_Fresh_Jobs[0m
+[2m[06/02/2026, 21:20:42][0m [1m[32m[OK   ][0m [37mTelegram routing complete: 4/4 messages sent[0m
 
 [1m[36m📈  Pipeline Complete[0m
-[2m    Total ingested  : 47[0m
-[2m    Passed filter   : 3[0m
-[2m    Sent to channel : 3[0m
-[2m    All-time seen   : 2[0m
-[2m    Elapsed         : 278.0s[0m
+[2m    Total ingested  : 48[0m
+[2m    Passed filter   : 4[0m
+[2m    Sent to channel : 4[0m
+[2m    All-time seen   : 6[0m
+[2m    Elapsed         : 490.5s[0m
 
 [1m[36m⚡  ═══════════════════════════════════════════════
 [0m

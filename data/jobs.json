@@ -1,5 +1,95 @@
 [
   {
+    "job_id": "ethioj_b2fc39dc",
+    "title": "WASH Intern at Norwegian Church Aid (NCA)",
+    "company": "Talent Search - Ethiojobs",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/iBtRg3XRPU-wash-intern-at-norwegian-church-aid-nca",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 4,
+      "upgrade": 5,
+      "skills": 1,
+      "overall_average": 3.3
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Norwegian Church Aid (NCA) is an international non-profit organization mandated to work with people around the world to eradicate poverty and injustice."
+    ],
+    "score_reasons": {
+      "salary": "Local school, clinic, or small organization — compensation typically reflects the lower end of fresh-graduate market benchmarks (~6,000–9,000 ETB/month).",
+      "upgrade": "This IT role has a moderate growth trajectory depending on the depth of technical work and mentorship quality at the organization.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-02T18:20:42.079Z"
+  },
+  {
+    "job_id": "ethioj_2c8d0439",
+    "title": "IT Infrastructure Officer",
+    "company": "Yehulu SACCOS LTD",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/q54I3VplJu-it-infrastructure-officer",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 4,
+      "skills": 1,
+      "overall_average": 3.3
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Yehulu Saving & Loan Cooperative (YEHULU SACCOS) is a financial cooperative established in 2015 E.C."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "Hardware maintenance roles offer limited vertical progression without transitioning into network or systems administration domains.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-02T18:20:38.847Z"
+  },
+  {
+    "job_id": "ethioj_89258e01",
+    "title": "IT Operations and System Security Junior Officer",
+    "company": "Yehulu SACCOS LTD",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/1wcUVMMMpE-it-operations-and-system-security-junior-officer",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 4,
+      "skills": 1,
+      "overall_average": 3.3
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Yehulu Saving & Loan Cooperative (YEHULU SACCOS) is a financial cooperative established in 2015 E.C."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "Hardware maintenance roles offer limited vertical progression without transitioning into network or systems administration domains.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-02T18:20:35.475Z"
+  },
+  {
     "job_id": "jiji_94fb6556",
     "title": "Website Developer",
     "company": "Via Jiji Ethiopia",
