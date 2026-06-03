@@ -98,6 +98,8 @@ const ENTRY_KEYWORDS = [
   'newly graduated', 'entry.?level', 'entry level',
   '\\bintern\\b', 'internship', 'trainee', 'graduate trainee',
   '\\bjunior\\b', 'career_level.*entry',
+  // Added: 0-1 year range is still entry-level territory
+  '0.?1\\s*years?', 'up to 1 year', 'less than 1 year', '1 year.*experience',
 ];
 
 const ENTRY_RX = ENTRY_KEYWORDS.map(p => new RegExp(p, 'i'));
@@ -109,14 +111,17 @@ const SENIOR_CAREER_LABELS = [
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
-// GATE 3: EXPERIENCE REQUIREMENT — discard if requires ≥1 year
+// GATE 3: EXPERIENCE REQUIREMENT — discard if requires 2+ years
+// (1 year is borderline acceptable in the Ethiopian market for entry roles)
+// Exception: if "junior" appears alongside 2+ yrs requirement, keep it.
 // ══════════════════════════════════════════════════════════════════════════
 
 const EXP_DISQUALIFIERS = [
-  /\b([1-9]\d*)\s*[\+\-]?\s*years?\s*(of\s+)?(relevant\s+)?(work\s+)?experience\b/i,
-  /minimum\s+of\s+([1-9]\d*)\s*years?/i,
-  /at\s+least\s+([1-9]\d*)\s*years?/i,
-  /([1-9]\d*)\s*[\+]\s*years?\b/i,
+  // 2 or more years explicitly required
+  /\b([2-9]|[1-9]\d+)\s*[\+\-]?\s*years?\s*(of\s+)?(relevant\s+)?(work\s+)?experience\b/i,
+  /minimum\s+of\s+([2-9]|[1-9]\d+)\s*years?/i,
+  /at\s+least\s+([2-9]|[1-9]\d+)\s*years?/i,
+  /([2-9]|[1-9]\d+)\+\s*years?\b/i,
   /senior\s+level/i, /managerial\s+level/i, /executive\s+level/i,
 ];
 
@@ -186,11 +191,16 @@ function isEntryLevel(job) {
 }
 
 /**
- * GATE 3: Experience requirement check — discard if clearly requires ≥1 yr.
+ * GATE 3: Experience requirement check — discard if clearly requires 2+ yrs.
+ * Exception: if the listing also contains "junior", give it a pass — some
+ * Ethiopian employers write "2 years" but mean it loosely for junior roles.
  */
 function hasExperienceRequirement(job) {
   const text = [job.title, job.description, job.careerLevel].join(' ');
-  return EXP_DISQUALIFIERS.some(rx => rx.test(text));
+  if (!EXP_DISQUALIFIERS.some(rx => rx.test(text))) return false;
+  // Junior exception — keep even if 2+ yrs mentioned
+  if (/\bjunior\b/i.test(text)) return false;
+  return true;
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -201,12 +211,16 @@ function hasExperienceRequirement(job) {
  * Filter jobs through all CRITICAL PIPELINE CONTROLS:
  *  Gate 0: Hard-reject (senior/lead/3+yrs) — instant discard
  *  Gate 1: Tech field (CS/IT/SE/CE/Sysadmin/MIS only)
- *  Gate 2: Entry level / fresh grad / intern / 0 yrs
- *  Gate 3: No explicit ≥1yr experience requirement
- *  Gate 4: Dedup (SQLite — not re-sent)
+ *  Gate 2: Entry level / fresh grad / intern / 0-1 yrs
+ *  Gate 3: No explicit 2+ yr experience requirement (junior exception applies)
+ *  Gate 4a: Dedup by job ID (SQLite — persists across runs)
+ *  Gate 4b: Dedup by title+company (in-memory Set — catches re-posted jobs)
  */
 function sanitize(jobs) {
   logger.step('📐', `Sanitizing ${jobs.length} ingested jobs...`);
+
+  // In-memory title+company dedup (catches same job posted with different IDs)
+  const titleCompanySeen = new Set();
 
   const results        = [];
   let skippedHard      = 0;
@@ -241,11 +255,19 @@ function sanitize(jobs) {
       continue;
     }
 
-    // Gate 4: Dedup
+    // Gate 4a: Dedup by job ID (SQLite)
     if (hasSeen(job.id)) {
       skippedDedup++;
       continue;
     }
+
+    // Gate 4b: Dedup by title+company (in-memory Set)
+    const dedupKey = `${(job.title || '').toLowerCase().trim()}|${(job.company || '').toLowerCase().trim()}`;
+    if (titleCompanySeen.has(dedupKey)) {
+      skippedDedup++;
+      continue;
+    }
+    titleCompanySeen.add(dedupKey);
 
     results.push(job);
     logger.dim(`  ✓ Passed: ${job.title} @ ${job.company} [${job.source}]`);
