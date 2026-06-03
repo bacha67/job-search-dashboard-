@@ -1,0 +1,45 @@
+# render.yaml — Render.com deployment configuration
+# Render reads this file to auto-configure the service.
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: worker          # Background worker (no HTTP port needed)
+    name: ethiopian-job-bot
+    runtime: node
+    region: frankfurt     # Closest free region to Ethiopia
+    plan: free
+
+    # Build
+    buildCommand: npm install
+
+    # Start
+    startCommand: npm start
+
+    # Environment variables — set values in Render dashboard (not here for security)
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false         # Set manually in Render dashboard
+
+      - key: TELEGRAM_CHAT_ID
+        sync: false         # Set manually in Render dashboard
+
+      - key: GITHUB_TOKEN
+        sync: false         # Set manually in Render dashboard (PAT with repo write scope)
+
+      - key: GITHUB_REPO
+        value: bacha67/job-search-dashboard-
+
+      - key: SCRAPE_CRON
+        value: "0 */6 * * *"   # Every 6 hours
+
+      - key: REQUEST_TIMEOUT_MS
+        value: "15000"
+
+      - key: REQUEST_DELAY_MS
+        value: "2000"
+
+      - key: MAX_JOBS_PER_PORTAL
+        value: "50"
+
+      - key: NODE_ENV
+        value: production

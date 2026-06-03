@@ -14,8 +14,20 @@ const { totalSeen } = require('./db/store');
 
 // ─── Auto-push data to GitHub → GitHub Pages dashboard auto-updates ──────────
 function pushDataToGitHub(newJobCount) {
-  if (newJobCount === 0) return; // nothing new to push
+  if (newJobCount === 0) return;
+
+  const token = process.env.GITHUB_TOKEN;
+  const repo  = process.env.GITHUB_REPO || 'bacha67/job-search-dashboard-';
+
   try {
+    // Set remote URL with token so Render (no local git creds) can push
+    if (token) {
+      execSync(
+        `git remote set-url origin https://x-access-token:${token}@github.com/${repo}.git`,
+        { cwd: process.cwd(), stdio: 'pipe' }
+      );
+    }
+
     execSync('git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
     execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
     execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
