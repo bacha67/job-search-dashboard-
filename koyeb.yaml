@@ -1,0 +1,42 @@
+name: ethiopian-job-bot
+
+services:
+  - name: job-bot
+    type: web
+    instance_type: free          # Koyeb free tier — always on, no spin-down
+    regions:
+      - fra                      # Frankfurt — closest free region to Ethiopia
+    git:
+      repository: github.com/bacha67/job-search-dashboard-
+      branch: main
+    build:
+      buildpack:
+        build_command: npm install
+        run_command: npm start
+    ports:
+      - port: 3000
+        protocol: http
+    health_checks:
+      - grace_period: 30
+        interval: 30
+        timeout: 5
+        restart_limit: 3
+        path: /
+    env:
+      - key: PORT
+        value: "3000"
+      - key: SCRAPE_CRON
+        value: "0 */6 * * *"
+      - key: REQUEST_TIMEOUT_MS
+        value: "15000"
+      - key: REQUEST_DELAY_MS
+        value: "2000"
+      - key: MAX_JOBS_PER_PORTAL
+        value: "50"
+      - key: NODE_ENV
+        value: production
+      # Set these as SECRET in Koyeb dashboard — do NOT put values here:
+      # TELEGRAM_BOT_TOKEN
+      # TELEGRAM_CHAT_ID
+      # GITHUB_TOKEN
+      # GITHUB_REPO

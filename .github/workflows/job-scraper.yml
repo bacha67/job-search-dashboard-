@@ -1,0 +1,62 @@
+name: 🇪🇹 Ethiopian Job Bot
+
+# ── Triggers ──────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # Every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
+  workflow_dispatch:          # Manual "Run workflow" button in GitHub Actions UI
+
+# ── Permissions ───────────────────────────────────────────────────────────────
+permissions:
+  contents: write             # Needed to commit + push updated jobs.json back to repo
+
+# ── Job ───────────────────────────────────────────────────────────────────────
+jobs:
+  scrape-and-post:
+    name: Scrape → Filter → Score → Post
+    runs-on: ubuntu-latest
+    timeout-minutes: 30       # Kill if hangs (free runner limit is 6h, we use 30min max)
+
+    steps:
+      # 1. Checkout full repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      # 2. Set up Node.js 20 with npm cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install dependencies (better-sqlite3 compiles native bindings here)
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Write .env file from GitHub Secrets
+      - name: Create .env
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> .env
+          echo "REQUEST_TIMEOUT_MS=15000"  >> .env
+          echo "REQUEST_DELAY_MS=2000"     >> .env
+          echo "MAX_JOBS_PER_PORTAL=50"    >> .env
+
+      # 5. Run the full pipeline once and exit
+      - name: Run job scraper pipeline
+        run: node src/scheduler.js --once
+
+      # 6. Commit updated jobs.json back to the repo
+      #    GitHub Pages will auto-serve the new data within ~30 seconds
+      - name: Commit and push updated jobs data
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name  "github-actions[bot]"
+          git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json
+          # Only commit if there are actual changes
+          git diff --staged --quiet && echo "No new jobs — nothing to commit" || \
+          git commit -m "data: auto-update jobs.json [skip ci]"
+          git push

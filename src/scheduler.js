@@ -16,18 +16,22 @@ const { totalSeen } = require('./db/store');
 function pushDataToGitHub(newJobCount) {
   if (newJobCount === 0) return;
 
+  // In GitHub Actions CI, the workflow handles git commit/push — skip here
+  if (process.env.CI) {
+    logger.dim('[GitHub] Running in CI — git push handled by workflow step');
+    return;
+  }
+
   const token = process.env.GITHUB_TOKEN;
   const repo  = process.env.GITHUB_REPO || 'bacha67/job-search-dashboard-';
 
   try {
-    // Set remote URL with token so Render (no local git creds) can push
     if (token) {
       execSync(
         `git remote set-url origin https://x-access-token:${token}@github.com/${repo}.git`,
         { cwd: process.cwd(), stdio: 'pipe' }
       );
     }
-
     execSync('git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
     execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
     execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
@@ -124,15 +128,51 @@ if (RUN_ONCE) {
     process.exit(1);
   }
 
+  // ── Health-check HTTP server (required by Koyeb / cloud hosting platforms) ─
+  // Koyeb expects a web service listening on PORT. This tiny server satisfies
+  // that requirement while the real cron work runs alongside it.
+  const http = require('http');
+  const PORT = process.env.PORT || 3000;
+
+  let lastRun   = null;
+  let cycleCount = 0;
+
+  const healthServer = http.createServer((req, res) => {
+    const status = {
+      status    : 'ok',
+      bot       : 'Ethiopian Tech Job Bot',
+      channel   : process.env.TELEGRAM_CHAT_ID || '@Ethio_Fresh_Jobs',
+      cron      : cronExpression,
+      lastRun   : lastRun,
+      cycles    : cycleCount,
+      uptime    : Math.floor(process.uptime()) + 's',
+      timestamp : new Date().toISOString(),
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(status, null, 2));
+  });
+
+  healthServer.listen(PORT, () => {
+    logger.ok(`Health server running on port ${PORT} (Koyeb keepalive)`);
+  });
+
+  // Patch runPipeline to track cycle stats
+  const _originalRun = runPipeline;
+  async function runPipelineTracked() {
+    cycleCount++;
+    lastRun = new Date().toISOString();
+    return _originalRun();
+  }
+
   logger.step('⏱️', `Scheduler started — cron: "${cronExpression}"`);
   logger.info('Running first pipeline cycle immediately on startup...');
 
   // Run immediately on startup, then on schedule
-  runPipeline();
+  runPipelineTracked();
 
   cron.schedule(cronExpression, () => {
     logger.step('⏱️', 'Cron tick — starting pipeline...');
-    runPipeline();
+    runPipelineTracked();
   });
 
   logger.info('Bot is running. Press Ctrl+C to stop.\n');
