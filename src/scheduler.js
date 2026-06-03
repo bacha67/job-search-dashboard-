@@ -12,16 +12,15 @@ const { scoreAll }  = require('./scoring/engine');
 const { sendAll }   = require('./telegram/router');
 const { totalSeen } = require('./db/store');
 
-// ─── Auto-push data to GitHub for Vercel dashboard ──────────────────────────
+// ─── Auto-push data to GitHub → GitHub Pages dashboard auto-updates ──────────
 function pushDataToGitHub(newJobCount) {
   if (newJobCount === 0) return; // nothing new to push
   try {
-    execSync('git add dashboard/public/data/jobs.json data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
+    execSync('git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
     execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
     execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
-    logger.ok(`[GitHub] Pushed updated jobs.json (${newJobCount} new jobs) → Vercel will redeploy dashboard`);
+    logger.ok(`[GitHub] Pushed jobs.json (${newJobCount} new) → GitHub Pages dashboard will update in ~30s`);
   } catch (e) {
-    // Non-fatal: push fails if no git remote, no changes, or no network
     const msg = (e.stderr?.toString() || e.message || '').split('\n')[0];
     logger.warn(`[GitHub] Auto-push skipped: ${msg}`);
   }

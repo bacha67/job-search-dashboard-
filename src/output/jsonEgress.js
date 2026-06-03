@@ -10,10 +10,12 @@ const logger = require('../utils/logger');
 // This file is consumed by the Next.js/React dashboard frontend.
 // Format: rolling array of the last MAX_STORED jobs, newest first.
 
-const DATA_DIR   = path.join(process.cwd(), 'data');
-const JSON_FILE  = path.join(DATA_DIR, 'jobs.json');
-// Mirror copy served by the hosted Vercel dashboard (static public asset)
+const DATA_DIR    = path.join(process.cwd(), 'data');
+const JSON_FILE   = path.join(DATA_DIR, 'jobs.json');
+// Mirror: Next.js public folder (Vercel hosting)
 const PUBLIC_COPY = path.join(process.cwd(), 'dashboard', 'public', 'data', 'jobs.json');
+// Mirror: GitHub Pages docs folder
+const DOCS_COPY   = path.join(process.cwd(), 'docs', 'data', 'jobs.json');
 const MAX_STORED  = 500; // keep last 500 jobs to prevent unbounded growth
 
 /**
@@ -115,13 +117,20 @@ function persist(jobs) {
   // Primary data file
   fs.writeFileSync(JSON_FILE, payload, 'utf8');
 
-  // Mirror to dashboard/public/data/jobs.json (served by Vercel as static asset)
+  // Mirror → dashboard/public/data/jobs.json  (Vercel static asset)
+  _mirrorWrite(PUBLIC_COPY, payload);
+
+  // Mirror → docs/data/jobs.json  (GitHub Pages)
+  _mirrorWrite(DOCS_COPY, payload);
+}
+
+function _mirrorWrite(dest, payload) {
   try {
-    const pubDir = path.dirname(PUBLIC_COPY);
-    if (!fs.existsSync(pubDir)) fs.mkdirSync(pubDir, { recursive: true });
-    fs.writeFileSync(PUBLIC_COPY, payload, 'utf8');
+    const dir = path.dirname(dest);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(dest, payload, 'utf8');
   } catch (e) {
-    // Non-fatal — local-only run without dashboard folder present
+    // Non-fatal — folder may not exist in some environments
   }
 }
 
