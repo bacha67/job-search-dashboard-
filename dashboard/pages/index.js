@@ -122,15 +122,23 @@ export default function Dashboard() {
   const [topOnly, setTopOnly]   = useState(false);
   const [sortBy, setSortBy]     = useState('newest');
 
-  // Fetch jobs from API
+  // Fetch jobs — reads from /data/jobs.json (public folder, works on Vercel + locally)
   const fetchJobs = async () => {
     try {
-      const r = await fetch('/api/jobs');
-      const d = await r.json();
-      setJobs(d.jobs  || []);
-      setMeta(d.meta  || {});
+      const r = await fetch('/data/jobs.json?t=' + Date.now());
+      if (!r.ok) throw new Error('Not found');
+      const jobs = await r.json();
+      // Sort newest first
+      jobs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setJobs(jobs);
+      setMeta({
+        total      : jobs.length,
+        topRated   : jobs.filter(j => j.is_top_rated).length,
+        sources    : [...new Set(jobs.map(j => j.source))],
+        lastUpdated: jobs[0]?.timestamp || null,
+      });
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load jobs:', e);
     } finally {
       setLoading(false);
     }

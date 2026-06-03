@@ -10,9 +10,11 @@ const logger = require('../utils/logger');
 // This file is consumed by the Next.js/React dashboard frontend.
 // Format: rolling array of the last MAX_STORED jobs, newest first.
 
-const DATA_DIR  = path.join(process.cwd(), 'data');
-const JSON_FILE = path.join(DATA_DIR, 'jobs.json');
-const MAX_STORED = 500; // keep last 500 jobs to prevent unbounded growth
+const DATA_DIR   = path.join(process.cwd(), 'data');
+const JSON_FILE  = path.join(DATA_DIR, 'jobs.json');
+// Mirror copy served by the hosted Vercel dashboard (static public asset)
+const PUBLIC_COPY = path.join(process.cwd(), 'dashboard', 'public', 'data', 'jobs.json');
+const MAX_STORED  = 500; // keep last 500 jobs to prevent unbounded growth
 
 /**
  * Generate a stable slug-based job_id from the source URL.
@@ -106,9 +108,21 @@ function loadExisting() {
  */
 function persist(jobs) {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  const sorted = jobs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const sorted  = jobs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   const trimmed = sorted.slice(0, MAX_STORED);
-  fs.writeFileSync(JSON_FILE, JSON.stringify(trimmed, null, 2), 'utf8');
+  const payload = JSON.stringify(trimmed, null, 2);
+
+  // Primary data file
+  fs.writeFileSync(JSON_FILE, payload, 'utf8');
+
+  // Mirror to dashboard/public/data/jobs.json (served by Vercel as static asset)
+  try {
+    const pubDir = path.dirname(PUBLIC_COPY);
+    if (!fs.existsSync(pubDir)) fs.mkdirSync(pubDir, { recursive: true });
+    fs.writeFileSync(PUBLIC_COPY, payload, 'utf8');
+  } catch (e) {
+    // Non-fatal — local-only run without dashboard folder present
+  }
 }
 
 /**

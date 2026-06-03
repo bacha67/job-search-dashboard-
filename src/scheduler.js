@@ -4,12 +4,28 @@
 require('dotenv').config();
 
 const cron    = require('node-cron');
+const { execSync } = require('child_process');
 const logger  = require('./utils/logger');
 const { ingestAll } = require('./ingestion');
 const { sanitize }  = require('./filter/sanitizer');
 const { scoreAll }  = require('./scoring/engine');
 const { sendAll }   = require('./telegram/router');
 const { totalSeen } = require('./db/store');
+
+// ─── Auto-push data to GitHub for Vercel dashboard ──────────────────────────
+function pushDataToGitHub(newJobCount) {
+  if (newJobCount === 0) return; // nothing new to push
+  try {
+    execSync('git add dashboard/public/data/jobs.json data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
+    execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
+    execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
+    logger.ok(`[GitHub] Pushed updated jobs.json (${newJobCount} new jobs) → Vercel will redeploy dashboard`);
+  } catch (e) {
+    // Non-fatal: push fails if no git remote, no changes, or no network
+    const msg = (e.stderr?.toString() || e.message || '').split('\n')[0];
+    logger.warn(`[GitHub] Auto-push skipped: ${msg}`);
+  }
+}
 
 // ─── Parse CLI flags ────────────────────────────────────────────────────────
 const args   = process.argv.slice(2);
@@ -61,6 +77,9 @@ async function runPipeline() {
 
     // ── Stage 04: Send to Telegram ───────────────────────────────────────
     const sent = await sendAll(scored, DRY_RUN);
+
+    // ── Stage 05: Push data/jobs.json to GitHub → triggers Vercel redeploy
+    if (!DRY_RUN) pushDataToGitHub(sent);
 
     printStats(startTime, raw.length, filtered.length, sent);
   } catch (err) {
