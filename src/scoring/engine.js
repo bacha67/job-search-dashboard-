@@ -73,23 +73,67 @@ const SALARY_LOW_SIGNALS = [
 ];
 
 /**
- * Score salary from 1–10 based on company name.
+ * Parse an explicit ETB/Birr salary amount from description text.
+ * Returns the numeric amount, or null if not stated.
+ */
+function parseEtbAmount(text) {
+  const patterns = [
+    /(?:ETB|birr)[\s:]*([\d,]+)/i,
+    /([\d,]+)[\s]*(?:ETB|birr)/i,
+    /salary[:\s]+(?:ETB|birr)?[\s]*([\d,]+)/i,
+    /([\d,]+)[\s]*(?:per month|monthly)/i,
+  ];
+  for (const rx of patterns) {
+    const m = rx.exec(text);
+    if (m) {
+      const amount = parseInt(m[1].replace(/,/g, ''), 10);
+      if (!isNaN(amount) && amount > 1000) return amount; // sanity check
+    }
+  }
+  return null;
+}
+
+/**
+ * Score salary from 1–10 based on company tier.
+ * If an explicit ETB amount is found in the description, apply a bonus/penalty
+ * on top of the company-tier baseline.
  */
 function scoreSalary(job) {
-  const hay = (job.company + ' ' + job.description).toLowerCase();
+  const hay  = (job.company + ' ' + job.description).toLowerCase();
+  const desc = (job.description || job.salary || '').toLowerCase();
 
   // Downgrade first for low signals
   if (SALARY_LOW_SIGNALS.some(rx => rx.test(hay))) {
-    return { score: 4, reason: 'Local school, clinic, or small organization — compensation typically reflects the lower end of fresh-graduate market benchmarks (~6,000–9,000 ETB/month).' };
+    const base = { score: 4, reason: 'Local school, clinic, or small organization — compensation typically reflects the lower end of fresh-graduate market benchmarks (~6,000–9,000 ETB/month).' };
+    const etb  = parseEtbAmount(desc);
+    if (etb && etb >= 15000) base.score = Math.min(10, base.score + 2);
+    return base;
   }
 
+  let result = { score: 5, reason: SALARY_TIERS[SALARY_TIERS.length - 1].reason };
   for (const tier of SALARY_TIERS) {
     if (tier.patterns.some(rx => rx.test(hay))) {
-      return { score: tier.score, reason: tier.reason };
+      result = { score: tier.score, reason: tier.reason };
+      break;
     }
   }
 
-  return { score: 5, reason: SALARY_TIERS[SALARY_TIERS.length - 1].reason };
+  // ETB amount bonus/penalty on top of company tier
+  const etb = parseEtbAmount(desc);
+  if (etb !== null) {
+    if (etb >= 15000) {
+      result.score = Math.min(10, result.score + 2);
+      result.reason += ` Salary stated at ${etb.toLocaleString()} ETB/month (above fresh-grad market).`;
+    } else if (etb >= 8000) {
+      result.score = Math.min(10, result.score + 1);
+      result.reason += ` Salary stated at ${etb.toLocaleString()} ETB/month (mid-range for fresh grads).`;
+    } else {
+      result.score = Math.max(1, result.score - 1);
+      result.reason += ` Salary stated at ${etb.toLocaleString()} ETB/month (below fresh-grad market average).`;
+    }
+  }
+
+  return result;
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -261,6 +305,31 @@ function scoreSkills(job) {
   }
 
   return { score, found, reason };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// REPUTATION SCORE — brand recognition separate from salary
+// ══════════════════════════════════════════════════════════════════════════
+
+const REPUTATION_TIERS = [
+  { score: 10, patterns: [/\bUN[A-Z]+\b/, /united nations/, /world bank/, /\bwfp\b/, /\bwho\b/, /\bimf\b/, /african development bank/] },
+  { score: 9,  patterns: [/save the children/, /oxfam/, /care ethiopia/, /mercy corps/, /world vision/, /plan international/, /\bnrc\b/, /norwegian.*church/, /\bolt\b/, /\bbolt\b/, /\byango\b/] },
+  { score: 8,  patterns: [/commercial bank of ethiopia/, /\bcbe\b/, /awash bank/, /dashen bank/, /abyssinia bank/, /ethio telecom/, /safaricom/, /ethiopian airlines/] },
+  { score: 7,  patterns: [/\bplc\b/, /share company/, /s\.c\./, /icog/, /gebeya/, /startup/, /fintech/, /tech.*company/, /software.*company/] },
+  { score: 5,  patterns: [/.*/] },  // catch-all
+];
+
+/**
+ * Score company reputation from 1–10 as a separate dimension from salary.
+ */
+function scoreReputation(job) {
+  const hay = (job.company + ' ' + (job.description || '')).toLowerCase();
+  for (const tier of REPUTATION_TIERS) {
+    if (tier.patterns.some(rx => rx.test(hay))) {
+      return tier.score;
+    }
+  }
+  return 5;
 }
 
 // ══════════════════════════════════════════════════════════════════════════

@@ -58,11 +58,15 @@ function extractSkills(job) {
  * Convert a scored job object into the dashboard JSON format.
  */
 function buildJobJson(job) {
-  const salary   = (job.scores?.salary  || 5);
-  const upgrade  = (job.scores?.upgrade || 5);
-  const skills   = (job.scores?.skills  || 1);
-  const overall  = parseFloat(((salary + upgrade + skills) / 3).toFixed(1));
-  const isTop    = overall >= 8.5;
+  const salary     = (job.scores?.salary     || 5);
+  const upgrade    = (job.scores?.upgrade    || 5);
+  const skills     = (job.scores?.skills     || 1);
+  const reputation = (job.scores?.reputation || 5);
+  // Use engine's weighted total if available; fall back to simple average
+  const overall    = job.scores?.total
+    ? job.scores.total
+    : parseFloat(((salary + upgrade + skills) / 3).toFixed(1));
+  const isTop = overall >= 8.5;
 
   return {
     job_id          : generateJobId(job),
@@ -78,7 +82,8 @@ function buildJobJson(job) {
       salary          : parseFloat(salary.toFixed(1)),
       upgrade         : parseFloat(upgrade.toFixed(1)),
       skills          : parseFloat(skills.toFixed(1)),
-      overall_average : overall,
+      reputation      : parseFloat(reputation.toFixed(1)),
+      overall_average : overall,   // weighted total (salary 40%, skills 30%, upgrade 20%, rep 10%)
     },
     extracted_skills: extractSkills(job),
     snapshot        : job.snapshot || [],
@@ -88,6 +93,7 @@ function buildJobJson(job) {
       skills  : job.reasons?.skills  || '',
     },
     timestamp       : new Date().toISOString(),
+
   };
 }
 
