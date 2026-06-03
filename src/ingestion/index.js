@@ -10,40 +10,53 @@ const linkedin  = require('../scrapers/linkedin');
 const logger    = require('../utils/logger');
 
 // ─── Data Ingestion Aggregator ─────────────────────────────────────────────
-// Runs all scrapers in sequence to avoid hammering servers simultaneously.
-// Returns one unified array. Each scraper fails gracefully without crashing.
+// Runs all scrapers in PARALLEL via Promise.allSettled() so one slow/blocked
+// scraper never delays the others. Each scraper hits a different domain so
+// parallel requests don't trigger rate-limits on the same server.
+// Returns one unified flat array. Failures are logged but never crash the pipeline.
 
 /**
- * Run all scrapers and merge results.
- * @returns {Promise<Array>} Unified job list from all 6 portals
+ * Run all 7 scrapers in parallel and merge results.
+ * @returns {Promise<Array>} Unified job list from all portals
  */
 async function ingestAll() {
-  logger.step('📡', 'Starting data ingestion from all portals...');
-  const allJobs = [];
+  logger.step('📡', 'Starting parallel data ingestion from all 7 portals...');
 
-  // Ordered by reliability — most reliable first
   const scrapers = [
-    ethiojobs,   // ✅ Ethiojobs.net — primary source
-    etcareers,   // ✅ ETcareers.com — IT category confirmed working
+    ethiojobs,   // ✅ Ethiojobs.net  — primary source
+    etcareers,   // ✅ ETcareers.com  — IT category confirmed working
     kebenajob,   // ✅ Kebenajobs.com — WordPress blog parser
-    jiji,        // ✅ Jiji Ethiopia — general job marketplace
-    afriwork,    // ⚡ Afriwork.com — may be blocked, fails gracefully
-    geezjobs,    // ⚡ GeezJobs.com — may be blocked, fails gracefully
-    linkedin,    // ⚡ LinkedIn — guest API, may be rate-limited, fails gracefully
+    jiji,        // ✅ Jiji Ethiopia  — general job marketplace
+    afriwork,    // ⚡ Afriwork.com   — may be blocked, fails gracefully
+    geezjobs,    // ⚡ GeezJobs.com   — may be blocked, fails gracefully
+    linkedin,    // ⚡ LinkedIn       — guest API, may be rate-limited, fails gracefully
   ];
 
-  for (const scraper of scrapers) {
-    try {
-      const jobs = await scraper.scrape();
-      allJobs.push(...jobs);
-      logger.ok(`Ingested ${jobs.length} jobs from ${scraper.SOURCE_NAME}`);
-    } catch (err) {
-      logger.error(`Scraper ${scraper.SOURCE_NAME} threw an uncaught error: ${err.message}`);
-      // Don't crash the pipeline — continue with next scraper
-    }
-  }
+  // Run all scrapers simultaneously — if one fails/blocks it doesn't delay others
+  const results = await Promise.allSettled(
+    scrapers.map(s => s.scrape())
+  );
 
-  logger.ok(`Total ingested: ${allJobs.length} jobs from all ${scrapers.length} portals (7 sources)`);
+  const allJobs = [];
+  let succeeded = 0, failed = 0;
+
+  results.forEach((result, i) => {
+    const name = scrapers[i].SOURCE_NAME;
+    if (result.status === 'fulfilled') {
+      const jobs = result.value || [];
+      allJobs.push(...jobs);
+      logger.ok(`  ✅ ${name}: ${jobs.length} jobs`);
+      succeeded++;
+    } else {
+      logger.warn(`  ❌ ${name}: failed — ${result.reason?.message || result.reason}`);
+      failed++;
+    }
+  });
+
+  logger.ok(
+    `Ingestion complete — ${succeeded}/${scrapers.length} portals succeeded | ` +
+    `${failed} failed | ${allJobs.length} total jobs`
+  );
   return allJobs;
 }
 
