@@ -6,6 +6,7 @@ const kebenajob = require('../scrapers/kebenajob');
 const etcareers = require('../scrapers/etcareers');
 const afriwork  = require('../scrapers/afriwork');
 const geezjobs  = require('../scrapers/geezjobs');
+const linkedin  = require('../scrapers/linkedin');
 const logger    = require('../utils/logger');
 
 // ─── Data Ingestion Aggregator ─────────────────────────────────────────────
@@ -28,6 +29,7 @@ async function ingestAll() {
     jiji,        // ✅ Jiji Ethiopia — general job marketplace
     afriwork,    // ⚡ Afriwork.com — may be blocked, fails gracefully
     geezjobs,    // ⚡ GeezJobs.com — may be blocked, fails gracefully
+    linkedin,    // ⚡ LinkedIn — guest API, may be rate-limited, fails gracefully
   ];
 
   for (const scraper of scrapers) {
@@ -41,7 +43,7 @@ async function ingestAll() {
     }
   }
 
-  logger.ok(`Total ingested: ${allJobs.length} jobs from all ${scrapers.length} portals`);
+  logger.ok(`Total ingested: ${allJobs.length} jobs from all ${scrapers.length} portals (7 sources)`);
   return allJobs;
 }
 
