@@ -21,11 +21,13 @@ const logger  = require('../utils/logger');
 const SOURCE_NAME = 'Ethiojobs';
 const BASE_URL    = 'https://ethiojobs.net';
 
-// Category search URLs — tried in addition to paginated main listing
+// Category search URLs — tried in addition to paginated main listing.
+// NOTE: 'Engineering' is intentionally excluded — it returns structural/civil
+// engineers, not software/IT engineers. The sanitizer catches this too, but
+// better to exclude at source.
 const CATEGORY_URLS = [
   `${BASE_URL}/jobs?category=Information+Technology`,
   `${BASE_URL}/jobs?category=Computer+Science`,
-  `${BASE_URL}/jobs?category=Engineering`,
   `${BASE_URL}/jobs?category=Telecommunication`,
 ];
 
@@ -52,14 +54,25 @@ const IT_CATALOGS = new Set([
   'telecommunications', 'telecom', 'ict',
 ]);
 
-// Title keyword fallback when catalog tags aren't present
+// Title keyword fallback when catalog tags aren't present.
+// IMPORTANT: 'engineer' alone is NOT included — it matches structural/civil/
+// mechanical engineers. Only specific tech-prefixed variants are allowed.
 const IT_TITLE_WORDS = [
-  'software', 'developer', 'programmer', 'it ', 'ict', 'network',
-  'system admin', 'database', 'devops', 'data ', 'web ', 'mobile ',
-  'flutter', 'react', 'python', 'java', 'php', 'engineer',
-  'cybersecur', 'help desk', 'helpdesk', 'tech support', 'computer',
-  'artificial intelligence', 'machine learning', 'cloud', 'frontend',
-  'backend', 'fullstack', 'ui/ux', 'android', 'ios', 'kotlin',
+  'software', 'developer', 'programmer', 'it officer', 'it support',
+  'ict officer', 'ict support', 'it specialist', 'it technician',
+  'network engineer', 'network admin', 'systems engineer', 'system admin',
+  'database admin', 'database developer', 'database engineer',
+  'software engineer', 'data engineer', 'cloud engineer', 'devops engineer',
+  'ml engineer', 'ai engineer', 'security engineer', 'platform engineer',
+  'devops', 'data analyst', 'data scientist', 'machine learning',
+  'artificial intelligence', 'cybersecur', 'help desk', 'helpdesk',
+  'tech support', 'technical support', 'web developer', 'web designer',
+  'mobile developer', 'mobile app', 'frontend', 'front-end', 'backend',
+  'back-end', 'fullstack', 'full-stack', 'full stack',
+  'flutter', 'react', 'python developer', 'java developer', 'php developer',
+  'android developer', 'ios developer', 'kotlin', 'ui/ux', 'ux designer',
+  'computer science', 'computer engineer', 'information technology',
+  'mis officer', 'mis analyst', 'erp developer', 'odoo', 'sap',
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -109,10 +122,13 @@ async function fetchListingPage(url) {
       logger.warn(`[Ethiojobs] No __NEXT_DATA__ at ${url}`);
       return { jobs: [], lastPage: 1 };
     }
-    const paginator = nextData?.props?.pageProps?.jobs || {};
-    const jobs      = paginator.data || [];
-    const lastPage  = paginator.last_page || paginator.lastPage || 1;
-    logger.dim(`  [Ethiojobs] ${jobs.length} raw jobs (page ${paginator.current_page || '?'} / ${lastPage})`);
+    const jobsObj  = nextData?.props?.pageProps?.jobs || {};
+    const jobs     = jobsObj.data || [];
+    // Pagination lives under jobs.meta (confirmed by structure inspection)
+    const meta     = jobsObj.meta || {};
+    const lastPage = meta.lastPage || meta.last_page || 1;
+    const curPage  = meta.pageNumber || meta.current_page || '?';
+    logger.dim(`  [Ethiojobs] ${jobs.length} raw jobs (page ${curPage} / ${lastPage} | total: ${meta.total || '?'})`);
     return { jobs, lastPage };
   } catch (err) {
     logger.error(`[Ethiojobs] Failed to fetch ${url}: ${err.message}`);
