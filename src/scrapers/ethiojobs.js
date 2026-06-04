@@ -32,8 +32,9 @@ const CATEGORY_URLS = [
 ];
 
 // Safety caps
-const MAX_LISTING_PAGES = parseInt(process.env.ETHIOJOBS_MAX_PAGES || '8',  10);
-const MAX_JOBS          = parseInt(process.env.MAX_JOBS_PER_PORTAL  || '80', 10);
+const MAX_LISTING_PAGES  = parseInt(process.env.ETHIOJOBS_MAX_PAGES    || '8',  10);
+const MAX_CATEGORY_PAGES = parseInt(process.env.ETHIOJOBS_CAT_PAGES    || '5',  10);
+const MAX_JOBS           = parseInt(process.env.MAX_JOBS_PER_PORTAL     || '80', 10);
 
 const HEADERS = {
   'User-Agent'     : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -90,10 +91,33 @@ function extractNextData(html) {
   }
 }
 
+// Non-IT title patterns — reject immediately even if catalog says 'Engineering'
+// (Ethiojobs uses 'Engineering' catalog for ALL engineering disciplines)
+const NON_IT_TITLE_REJECT = [
+  /\barchitect\b(?!.*software|.*it\b|.*tech|.*solution)/i, // allow "Software Architect"
+  /\bstructural\b/i, /\bcivil\s+engineer/i,
+  /\bmechanical\s+engineer/i, /\belectrical\s+engineer/i,
+  /\bchemical\s+engineer/i, /\bfire\b.{0,12}(safety|officer)/i,
+  /\bgeologist\b/i, /\bmining\b/i, /\bshot\s*firer\b/i,
+  /\bnurse\b/i, /\bdoctor\b/i, /\bphysician\b/i,
+  /\baccountant\b/i, /\bauditor\b/i,
+  /\bdriver\b/i, /\bsecurity\s+officer\b/i, /\bguard\b/i,
+  /\bchef\b/i, /\bcook\b/i, /\bwaiter\b/i,
+  /\bwash\s+intern\b/i, /\bwash\s+officer\b/i,
+  /\bfacilities\s+engineer\b/i, /\bmaintenance\s+engineer\b/i,
+];
+
 function isITJob(raw) {
+  const title    = (raw.title || '').toLowerCase();
   const catalogs = (raw.catalogs || []).map(c => c.name.toLowerCase());
+
+  // Hard-reject non-IT engineering/health/other titles first
+  if (NON_IT_TITLE_REJECT.some(rx => rx.test(title))) return false;
+
+  // Trust the structured catalog tag
   if (catalogs.some(c => IT_CATALOGS.has(c))) return true;
-  const title = (raw.title || '').toLowerCase();
+
+  // Fallback: title keyword match
   return IT_TITLE_WORDS.some(k => title.includes(k));
 }
 
@@ -276,13 +300,19 @@ async function scrape() {
     });
   }
 
-  // Step C: Try category URLs for any additional jobs not in the main pool
+  // Step C: Paginate through category URLs for IT-specific jobs
+  // The ?category=Information+Technology URL has 93+ pages of IT-tagged jobs
   for (const catUrl of CATEGORY_URLS) {
-    await new Promise(r => setTimeout(r, DELAY));
-    const { jobs } = await fetchListingPage(catUrl);
-    jobs.filter(isITJob).forEach(j => {
-      if (j.slug && !seen.has(j.slug)) { seen.add(j.slug); rawItJobs.push(j); }
-    });
+    for (let page = 1; page <= MAX_CATEGORY_PAGES; page++) {
+      await new Promise(r => setTimeout(r, DELAY));
+      const pageUrl   = page === 1 ? catUrl : `${catUrl}&page=${page}`;
+      const { jobs, lastPage } = await fetchListingPage(pageUrl);
+      if (jobs.length === 0) break;
+      jobs.filter(isITJob).forEach(j => {
+        if (j.slug && !seen.has(j.slug)) { seen.add(j.slug); rawItJobs.push(j); }
+      });
+      if (page >= lastPage) break;  // no more pages for this category
+    }
   }
 
   logger.ok(`[Ethiojobs] Found ${rawItJobs.length} unique IT jobs across all listing pages`);
