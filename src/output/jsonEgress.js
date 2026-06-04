@@ -177,4 +177,8 @@ function appendJobs(scoredJobs) {
  */
 function getFilePath() { return JSON_FILE; }
 
-module.exports = { appendJobs, buildJobJson, getFilePath };
+// writeJobsJson is an alias for appendJobs — use this name in scheduler.js
+// for clarity that this is the explicit dashboard write step.
+const writeJobsJson = appendJobs;
+
+module.exports = { appendJobs, writeJobsJson, buildJobJson, getFilePath };

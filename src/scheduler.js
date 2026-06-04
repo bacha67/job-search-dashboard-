@@ -3,29 +3,36 @@
 // Load .env before anything else
 require('dotenv').config();
 
-const cron    = require('node-cron');
+const cron         = require('node-cron');
 const { execSync } = require('child_process');
-const logger  = require('./utils/logger');
-const { ingestAll }      = require('./ingestion');
-const { sanitize }       = require('./filter/sanitizer');
-const { scoreAll }       = require('./scoring/engine');
-const { sendAll }        = require('./telegram/router');
-const { totalSeen }      = require('./db/store');
-const { processAllJobs } = require('./ai/gemini');
+const logger       = require('./utils/logger');
 
-// ─── Auto-push data to GitHub → GitHub Pages dashboard auto-updates ──────────
+// ── Imports ──────────────────────────────────────────────────────────────────
+const { ingestAll }      = require('./ingestion');          // all 7 scrapers in parallel
+const { scrapeEthioJobs} = require('./scrapers/ethiojobs'); // Ethiojobs only (alias)
+const { sanitize }       = require('./filter/sanitizer');   // fast keyword pre-filter
+const { scoreAll }       = require('./scoring/engine');      // heuristic fallback scorer
+const { processAllJobs } = require('./ai/gemini');          // Gemini AI stage
+const { sendAll }        = require('./telegram/router');     // Telegram sender
+const { writeJobsJson }  = require('./output/jsonEgress');  // dashboard JSON writer
+const { totalSeen }      = require('./db/store');
+
+// ── CLI flags ─────────────────────────────────────────────────────────────────
+const args     = process.argv.slice(2);
+const DRY_RUN  = args.includes('--dry-run');
+const RUN_ONCE = args.includes('--once') || DRY_RUN;
+// --ethio-only: use only Ethiojobs scraper instead of all 7 scrapers
+const ETHIO_ONLY = args.includes('--ethio-only');
+
+// ── Auto-push to GitHub → GitHub Pages dashboard auto-updates ────────────────
 function pushDataToGitHub(newJobCount) {
   if (newJobCount === 0) return;
-
-  // In GitHub Actions CI, the workflow handles git commit/push — skip here
   if (process.env.CI) {
     logger.dim('[GitHub] Running in CI — git push handled by workflow step');
     return;
   }
-
   const token = process.env.GITHUB_TOKEN;
   const repo  = process.env.GITHUB_REPO || 'bacha67/job-search-dashboard-';
-
   try {
     if (token) {
       execSync(
@@ -36,98 +43,108 @@ function pushDataToGitHub(newJobCount) {
     execSync('git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
     execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
     execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
-    logger.ok(`[GitHub] Pushed jobs.json (${newJobCount} new) → GitHub Pages dashboard will update in ~30s`);
+    logger.ok(`[GitHub] Pushed jobs.json (${newJobCount} new) → dashboard updates in ~30s`);
   } catch (e) {
     const msg = (e.stderr?.toString() || e.message || '').split('\n')[0];
     logger.warn(`[GitHub] Auto-push skipped: ${msg}`);
   }
 }
 
-// ─── Parse CLI flags ────────────────────────────────────────────────────────
-const args   = process.argv.slice(2);
-const DRY_RUN = args.includes('--dry-run');
-const RUN_ONCE = args.includes('--once') || DRY_RUN;
-
-// ─── Pipeline ───────────────────────────────────────────────────────────────
-/**
- * Execute the full pipeline:
- *   Ingest → Sanitize → Score → Send
- */
+// ── Main Pipeline ─────────────────────────────────────────────────────────────
 async function runPipeline() {
   const startTime = Date.now();
 
   logger.step('⚡', '═══════════════════════════════════════════════');
   logger.step('⚡', '  ETHIOPIAN TECH JOB BOT — PIPELINE START');
   logger.step('⚡', '═══════════════════════════════════════════════');
-
-  if (DRY_RUN) {
-    logger.warn('Running in DRY RUN mode — no messages will be sent to Telegram');
-  }
+  if (DRY_RUN)    logger.warn('DRY RUN — no Telegram messages will be sent');
+  if (ETHIO_ONLY) logger.warn('ETHIO ONLY — using single scraper (Ethiojobs)');
 
   try {
-    // ── Stage 01: Ingest ────────────────────────────────────────────────
-    const raw = await ingestAll();
+    // ── Step 1: Scrape ────────────────────────────────────────────────────
+    // Default: all 7 scrapers in parallel (ETcareers + Kebenajob + Jiji etc.
+    // contribute 40+ extra jobs per run beyond Ethiojobs alone).
+    // Use --ethio-only flag or ETHIO_ONLY=true env to restrict to Ethiojobs only.
+    const rawJobs = ETHIO_ONLY
+      ? await scrapeEthioJobs()
+      : await ingestAll();
 
-    // ── Stage 02: Sanitize / Filter (fast keyword pre-filter) ────────────
-    const filtered = sanitize(raw);
+    logger.ok(`Step 1 complete — ${rawJobs.length} raw jobs scraped`);
 
-    if (filtered.length === 0) {
-      logger.info('No new qualifying jobs found this cycle. All done.');
-      printStats(startTime);
+    if (rawJobs.length === 0) {
+      logger.info('No jobs scraped this cycle.');
+      printStats(startTime, 0, 0, 0, 0);
       return;
     }
 
-    // ── Stage 03: AI or Heuristic scoring ───────────────────────────────
-    let scored;
+    // ── Step 2: Pre-filter (free keyword pass before hitting Gemini API) ──
+    // Sanitize removes duplicates, senior/lead roles, and non-tech titles.
+    // This protects Gemini API quota — only relevant candidates go to AI.
+    const preFiltered = sanitize(rawJobs);
+    logger.ok(`Step 2 complete — ${preFiltered.length}/${rawJobs.length} passed keyword pre-filter`);
+
+    if (preFiltered.length === 0) {
+      logger.info('No qualifying jobs after pre-filter. All done.');
+      printStats(startTime, rawJobs.length, 0, 0, 0);
+      return;
+    }
+
+    // ── Step 3: Gemini AI — extract fields, score, validate IT + fresh grad ─
+    let processedJobs;
     const hasGemini = !!process.env.GEMINI_API_KEY;
 
     if (hasGemini) {
-      // Gemini AI: extracts fields, validates isITJob + isFreshGradOk, scores
-      logger.step('🤖', `Gemini AI processing ${filtered.length} pre-filtered job(s)...`);
-      scored = await processAllJobs(filtered);
-
-      if (scored.length === 0) {
-        logger.info('Gemini found no qualifying IT/entry-level jobs this cycle.');
-        printStats(startTime, raw.length, filtered.length, 0, 0);
-        return;
-      }
+      logger.step('🤖', `Step 3: Gemini AI processing ${preFiltered.length} pre-filtered job(s)...`);
+      processedJobs = await processAllJobs(preFiltered);
+      logger.ok(`Step 3 complete — ${processedJobs.length} jobs passed AI filter (isIT + isFreshGradOk)`);
     } else {
-      // Fallback: keyword-based heuristic scoring (no API key needed)
-      logger.step('🧠', `Scoring ${filtered.length} qualifying job(s) (heuristic mode)...`);
-      scored = scoreAll(filtered);
+      // Fallback: heuristic scoring when Gemini key not available
+      logger.step('🧠', `Step 3: Heuristic scoring ${preFiltered.length} job(s) (no GEMINI_API_KEY)...`);
+      processedJobs = scoreAll(preFiltered);
+      logger.ok(`Step 3 complete — ${processedJobs.length} jobs scored`);
     }
 
-    // Sort best jobs first
-    scored.sort((a, b) => {
-      const totA = a.scores?.total ?? (a.scores?.salary + a.scores?.upgrade + a.scores?.skills);
-      const totB = b.scores?.total ?? (b.scores?.salary + b.scores?.upgrade + b.scores?.skills);
+    if (processedJobs.length === 0) {
+      logger.info('No qualifying jobs after AI filter. All done.');
+      printStats(startTime, rawJobs.length, preFiltered.length, 0, 0);
+      return;
+    }
+
+    // Sort best score first
+    processedJobs.sort((a, b) => {
+      const totA = a.score?.total ?? a.scores?.total ?? 0;
+      const totB = b.score?.total ?? b.scores?.total ?? 0;
       return totB - totA;
     });
 
-    logger.ok(
-      `Top job: "${scored[0].title}" @ ${scored[0].company} ` +
-      `[score: ${scored[0].scores?.total ?? '?'}/10]`
-    );
+    logger.ok(`Top job: "${processedJobs[0].title}" @ ${processedJobs[0].company} [${processedJobs[0].score?.total ?? processedJobs[0].scores?.total ?? '?'}/10]`);
 
-    // ── Stage 04: Send to Telegram ───────────────────────────────────────
-    const sent = await sendAll(scored, DRY_RUN);
+    // ── Step 4: Send to Telegram ───────────────────────────────────────────
+    const sent = await sendAll(processedJobs, DRY_RUN);
+    logger.ok(`Step 4 complete — ${sent}/${processedJobs.length} messages sent to Telegram`);
 
-    // ── Stage 05: Push data/jobs.json to GitHub → triggers dashboard update
+    // ── Step 5: Write dashboard JSON ──────────────────────────────────────
+    const written = writeJobsJson(processedJobs);
+    logger.ok(`Step 5 complete — ${written} new jobs written to dashboard JSON`);
+
+    // Push updated JSON to GitHub → GitHub Pages auto-serves it
     if (!DRY_RUN) pushDataToGitHub(sent);
 
-    printStats(startTime, raw.length, filtered.length, scored.length, sent);
+    printStats(startTime, rawJobs.length, preFiltered.length, processedJobs.length, sent);
+
   } catch (err) {
     logger.error(`Pipeline crashed: ${err.message}`);
     logger.error(err.stack);
   }
 }
 
-function printStats(startTime, total = 0, filtered = 0, aiQualified = 0, sent = 0) {
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+// ── Stats printer ─────────────────────────────────────────────────────────────
+function printStats(startTime, raw = 0, preFiltered = 0, aiQualified = 0, sent = 0) {
+  const elapsed   = ((Date.now() - startTime) / 1000).toFixed(1);
   const hasGemini = !!process.env.GEMINI_API_KEY;
   logger.step('📈', 'Pipeline Complete');
-  logger.dim(`  Total ingested  : ${total}`);
-  logger.dim(`  Passed filter   : ${filtered}`);
+  logger.dim(`  Total scraped   : ${raw}`);
+  logger.dim(`  Pre-filtered    : ${preFiltered}`);
   if (hasGemini) logger.dim(`  AI qualified    : ${aiQualified}`);
   logger.dim(`  Sent to channel : ${sent}`);
   logger.dim(`  All-time seen   : ${totalSeen()}`);
@@ -135,12 +152,10 @@ function printStats(startTime, total = 0, filtered = 0, aiQualified = 0, sent = 
   logger.step('⚡', '═══════════════════════════════════════════════\n');
 }
 
-// ─── Scheduler ──────────────────────────────────────────────────────────────
+// ── Entry point ───────────────────────────────────────────────────────────────
 if (RUN_ONCE) {
-  // --dry-run or --once: run immediately and exit
-  runPipeline().then(() => {
-    if (!DRY_RUN) process.exit(0);
-  });
+  // --once or --dry-run: run once and exit
+  runPipeline().then(() => process.exit(0));
 } else {
   const cronExpression = process.env.SCRAPE_CRON || '0 */6 * * *';
 
@@ -149,9 +164,7 @@ if (RUN_ONCE) {
     process.exit(1);
   }
 
-  // ── Health-check HTTP server (required by Koyeb / cloud hosting platforms) ─
-  // Koyeb expects a web service listening on PORT. This tiny server satisfies
-  // that requirement while the real cron work runs alongside it.
+  // Health-check HTTP server (required by cloud hosting platforms like Koyeb)
   const http = require('http');
   const PORT = process.env.PORT || 3000;
 
@@ -164,7 +177,7 @@ if (RUN_ONCE) {
       bot       : 'Ethiopian Tech Job Bot',
       channel   : process.env.TELEGRAM_CHAT_ID || '@Ethio_Fresh_Jobs',
       cron      : cronExpression,
-      lastRun   : lastRun,
+      lastRun,
       cycles    : cycleCount,
       uptime    : Math.floor(process.uptime()) + 's',
       timestamp : new Date().toISOString(),
@@ -173,24 +186,18 @@ if (RUN_ONCE) {
     res.end(JSON.stringify(status, null, 2));
   });
 
-  healthServer.listen(PORT, () => {
-    logger.ok(`Health server running on port ${PORT} (Koyeb keepalive)`);
-  });
+  healthServer.listen(PORT, () => logger.ok(`Health server running on port ${PORT}`));
 
-  // Patch runPipeline to track cycle stats
-  const _originalRun = runPipeline;
   async function runPipelineTracked() {
     cycleCount++;
     lastRun = new Date().toISOString();
-    return _originalRun();
+    return runPipeline();
   }
 
   logger.step('⏱️', `Scheduler started — cron: "${cronExpression}"`);
   logger.info('Running first pipeline cycle immediately on startup...');
 
-  // Run immediately on startup, then on schedule
   runPipelineTracked();
-
   cron.schedule(cronExpression, () => {
     logger.step('⏱️', 'Cron tick — starting pipeline...');
     runPipelineTracked();
