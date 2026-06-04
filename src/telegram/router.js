@@ -5,7 +5,10 @@ const { markSeen } = require('../db/store');
 const jsonEgress   = require('../output/jsonEgress');
 const logger       = require('../utils/logger');
 
-// ─── Stage 05: Telegram Router + JSON Egress ───────────────────────────────
+// ─── Stage 04: Telegram Router ────────────────────────────────────────────────
+// Formats Gemini-processed job objects into HTML messages and sends them.
+// All content fields (description, responsibilities, requirements, score.reason)
+// come pre-extracted from Gemini — no builders or parsers needed here.
 
 function getTelegramUrl() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -14,12 +17,11 @@ function getTelegramUrl() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// HTML ESCAPING — HTML parse_mode only needs these 3 entities escaped
-// Much simpler than MarkdownV2's 17+ special characters
+// HTML ESCAPING — only 3 entities needed for Telegram HTML parse_mode
 // ─────────────────────────────────────────────────────────────────────────
 
 function h(s) {
-  return String(s || '')
+  return String(s ?? 'Not specified')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -27,219 +29,113 @@ function h(s) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// CONTENT BUILDERS
-// ─────────────────────────────────────────────────────────────────────────
-
-/** Strip HTML tags and decode entities from scraped HTML */
-function clean(text) {
-  return (text || '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ').trim();
-}
-
-/**
- * Build a 2–3 sentence "About the Role" summary.
- */
-function buildAboutRole(job) {
-  const desc = clean(job.description || job.descHtml || '');
-  if (desc.length > 80) {
-    const sentences = desc.match(/[^.!?]+[.!?]+/g) || [];
-    const joined = sentences.slice(0, 3).join(' ').trim();
-    if (joined.length > 30) return joined;
-  }
-  // Fallback: describe by title + company
-  return `${h(job.title)} role at ${h(job.company)}, based in ${h(job.location || 'Ethiopia')}. ` +
-    `This is an entry-level position open to fresh graduates and junior candidates.`;
-}
-
-/**
- * Build responsibility bullet points.
- * Uses scraped responsibilities → snapshot → title-based prediction.
- */
-function buildResponsibilities(job) {
-  // Try scraped responsibilities field
-  const raw = clean(job.responsibilities || '');
-  if (raw.length > 30) {
-    const bullets = raw
-      .split(/[.;\n]+/)
-      .map(s => s.trim())
-      .filter(s => s.length > 10)
-      .slice(0, 5);
-    if (bullets.length >= 2) return bullets;
-  }
-
-  // Try snapshot[1] (Primary Tasks line)
-  const snap1 = clean((job.snapshot || [])[1] || '').replace(/📋\s*Primary Tasks:\s*/i, '');
-  if (snap1.length > 20) {
-    const bullets = snap1.split(/[.;]+/).map(s => s.trim()).filter(s => s.length > 8).slice(0, 4);
-    if (bullets.length >= 2) return bullets;
-  }
-
-  // Predict from job title
-  const t = (job.title || '').toLowerCase();
-  if (t.includes('frontend') || t.includes('react') || t.includes('ui'))
-    return ['Build and maintain responsive UI components', 'Integrate REST APIs with frontend interfaces', 'Ensure cross-browser compatibility', 'Collaborate with design and backend teams', 'Write clean, maintainable component code'];
-  if (t.includes('backend') || t.includes('node') || t.includes('api'))
-    return ['Design and implement RESTful APIs', 'Write server-side business logic', 'Design and optimize database schemas', 'Collaborate with frontend developers', 'Write unit and integration tests'];
-  if (t.includes('flutter') || t.includes('mobile') || t.includes('android') || t.includes('ios'))
-    return ['Develop cross-platform mobile applications', 'Integrate third-party APIs and services', 'Implement UI from design mockups', 'Debug and optimize app performance', 'Publish and maintain apps on app stores'];
-  if (t.includes('fullstack') || t.includes('full stack') || t.includes('full-stack'))
-    return ['Build end-to-end web features (frontend + backend)', 'Design database schemas and REST API endpoints', 'Deploy and maintain web applications', 'Write automated tests', 'Collaborate with the product team on requirements'];
-  if (t.includes('data analyst') || t.includes('data science'))
-    return ['Collect, clean, and analyze large datasets', 'Build dashboards and reports for stakeholders', 'Write SQL queries and automate data pipelines', 'Identify trends and present actionable insights', 'Support data-driven decision making'];
-  if (t.includes('devops') || t.includes('cloud') || t.includes('sre'))
-    return ['Manage CI/CD pipelines and deployments', 'Monitor infrastructure and application performance', 'Automate operational tasks with scripts', 'Maintain cloud resources (AWS/GCP/Azure)', 'Respond to incidents and implement fixes'];
-  if (t.includes('network') || t.includes('sysadmin') || t.includes('system admin'))
-    return ['Configure and maintain network infrastructure', 'Monitor server uptime and performance', 'Troubleshoot hardware and connectivity issues', 'Maintain IT asset inventory', 'Document configurations and procedures'];
-  if (t.includes('cybersecurity') || t.includes('security'))
-    return ['Monitor systems for threats and vulnerabilities', 'Conduct security audits and risk assessments', 'Implement access controls and security policies', 'Respond to security incidents', 'Train staff on cybersecurity best practices'];
-  if (t.includes('machine learning') || t.includes('ai') || t.includes('ml'))
-    return ['Design and train machine learning models', 'Preprocess and analyze training datasets', 'Evaluate model performance and improve accuracy', 'Deploy models to production environments', 'Research and apply state-of-the-art techniques'];
-  // Generic IT
-  return [
-    'Provide technical support and troubleshoot IT issues',
-    'Maintain hardware, software, and network systems',
-    'Document processes and create user guides',
-    'Assist with system setup and configuration',
-    'Collaborate with team members on IT projects',
-  ];
-}
-
-/**
- * Format the requirements block (Education / Experience / Skills / Other).
- */
-function buildRequirements(job) {
-  const desc = clean(job.description || '');
-  const req  = clean(job.requirements || '');
-
-  // Education
-  let education = job.education || '';
-  if (!education) {
-    if (/master|msc|m\.sc/i.test(desc + req))       education = "Master's degree in CS/IT or related field";
-    else if (/bachelor|bsc|b\.sc|degree/i.test(desc + req)) education = "Bachelor's degree in CS/IT or related field";
-    else if (/diploma|level iv|level 4/i.test(desc + req))  education = 'Diploma in IT or related field';
-    else education = "Bachelor's degree in CS/IT or equivalent";
-  }
-
-  // Experience — check for fresh grad signals
-  const expRaw = (job.experience || job.workExpName || job.careerLevel || '').toLowerCase();
-  const descLower = (desc + req).toLowerCase();
-  const isFreshFriendly =
-    /fresh|entry.?level|junior|0.?year|no experience|graduate trainee|internship/i.test(expRaw + ' ' + descLower);
-  let experience = job.experience || job.workExpName || '';
-  if (!experience || experience === 'Entry Level') {
-    experience = isFreshFriendly
-      ? 'Fresh Graduate / No Experience Required ✅'
-      : (job.careerLevel || 'Not specified');
-  } else if (isFreshFriendly && !experience.includes('✅')) {
-    experience += ' ✅';
-  }
-
-  // Skills — from skillsFound array or snapshot
-  let skills = '';
-  if (job.skillsFound && job.skillsFound.length > 0) {
-    skills = job.skillsFound.join(', ');
-  } else {
-    const snap0 = clean((job.snapshot || [])[0] || '').replace(/🔧\s*Tools & Stack:\s*/i, '');
-    skills = snap0 || 'General IT skills';
-  }
-
-  // Other requirements (certifications, age, gender, etc.)
-  let other = 'Not specified';
-  const otherMatch = (desc + ' ' + req).match(
-    /(?:certification|certified|license|aged?\s+\d|applicants?.*only|preference.*given)[^.]{0,100}/i
-  );
-  if (otherMatch) other = otherMatch[0].trim();
-
-  return { education, experience, skills, other };
-}
-
-/**
- * Build the "How to Apply" section with Maps link for addresses.
- */
-function buildHowToApply(job) {
-  const url   = job.sourceUrl   || '';
-  const email = job.applyEmail  || '';
-  const method = (job.applyMethod || '').toLowerCase();
-  const loc   = (job.location   || '').trim();
-
-  const isAddress = /,|sub.?city|kebele|street|avenue|bole|kirkos|yeka|addis|road/i.test(loc);
-  const mapsLink  = isAddress
-    ? `\n📌 In-person: <a href="https://maps.google.com/?q=${encodeURIComponent(loc + ' Ethiopia')}">Get Directions</a>`
-    : '';
-
-  if (email)                     return `📧 <a href="mailto:${h(email)}">${h(email)}</a>${mapsLink}`;
-  if (url && url.startsWith('http')) return `🌐 <a href="${h(url)}">Click Here to Apply</a>${mapsLink}`;
-  if (method.includes('email'))  return `📧 Apply via email (check job details)${mapsLink}`;
-  if (method.includes('url'))    return `🌐 <a href="${h(url || '')}">Apply Online</a>${mapsLink}`;
-  if (isAddress)                 return mapsLink.replace('\n📌 ', '');
-  return 'Check source portal for application details';
-}
-
-/**
- * Format deadline date nicely.
- */
-function formatDeadline(deadline) {
-  if (!deadline) return 'Not specified';
-  try {
-    const d = new Date(deadline);
-    if (isNaN(d.getTime())) return deadline;
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch { return deadline; }
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// MAIN FORMATTER — Telegram HTML parse_mode
+// FORMATTER — uses Gemini fields directly (no parsing/prediction needed)
 // ─────────────────────────────────────────────────────────────────────────
 
 const DIVIDER = '━━━━━━━━━━━━━━━━━━━━━';
 
 function formatTelegramMessage(job) {
-  const scores = job.scores || {};
-  const sal    = scores.salary     || 5;
-  const skl    = scores.skills     || 5;
-  const grw    = scores.upgrade    || 5;
-  const rep    = scores.reputation || 5;
-  const total  = scores.total      || parseFloat(((sal + skl + grw) / 3).toFixed(1));
+  const score = job.score || job.scores || {};
 
-  // Score bar (filled dots per score /10)
-  const scoreBar = total >= 8 ? '🟢🟢🟢🟢🟢' :
-                   total >= 6 ? '🟢🟢🟢🟡⚪' :
-                   total >= 4 ? '🟢🟢🟡⚪⚪' : '🟢🟡⚪⚪⚪';
+  // ── Header fields ──────────────────────────────────────────────────────
+  const company  = h(job.company);
+  const title    = h(job.title);
+  const location = h(job.location || 'Ethiopia');
+  const deadline = h(job.deadline || 'Not specified');
 
-  const about        = buildAboutRole(job);
-  const bullets      = buildResponsibilities(job);
-  const { education, experience, skills, other } = buildRequirements(job);
-  const howToApply   = buildHowToApply(job);
-  const deadline     = formatDeadline(job.deadline);
-  const salary       = job.salary ? h(String(job.salary)) : 'Not disclosed';
+  // ── Description (2-3 sentences from Gemini) ───────────────────────────
+  const description = h(job.description || 'No description available.');
 
-  // Score breakdown line
-  const scoreDetail = scores.total
-    ? `💰 ${((sal/10)*4).toFixed(1)}/4 · 🛠 ${((skl/10)*3).toFixed(1)}/3 · 📈 ${((grw/10)*2).toFixed(1)}/2 · 🏆 ${((rep/10)*1).toFixed(1)}/1`
+  // ── Responsibilities (Gemini array → bullet list) ─────────────────────
+  const responsibilities = Array.isArray(job.responsibilities) && job.responsibilities.length > 0
+    ? job.responsibilities
+    : (typeof job.responsibilities === 'string' && job.responsibilities
+        ? job.responsibilities.split(/[.;]+/).filter(s => s.trim().length > 8)
+        : ['Check job posting for full details']);
+
+  const responsibilityLines = responsibilities
+    .slice(0, 5)
+    .map(r => `- ${h(r)}`)
+    .join('\n');
+
+  // ── Requirements section ───────────────────────────────────────────────
+  const education  = h(job.education  || 'Not specified');
+
+  // Experience: show years + ✅ badge if fresh grad ok
+  const expRaw     = String(job.experience ?? 'Not specified');
+  const freshBadge = job.isFreshGradOk ? ' ✅ <b>Fresh Graduate OK!</b>' : '';
+  const experience = h(expRaw) + freshBadge;
+
+  // Skills: pull from requirements array (Gemini provides these)
+  const reqArray = Array.isArray(job.requirements) ? job.requirements : [];
+  const skills   = reqArray.length > 0
+    ? reqArray.slice(0, 5).map(r => h(r)).join(', ')
+    : 'See job posting for details';
+
+  // ── Salary ────────────────────────────────────────────────────────────
+  const salary = h(job.salary || 'Not disclosed');
+
+  // ── How to Apply ──────────────────────────────────────────────────────
+  let howToApply;
+  const applyUrl = job.applyUrl || job.sourceUrl || job.url || '';
+  const applyRaw = job.howToApply || '';
+  const loc      = (job.location || '').trim();
+
+  // Check if location looks like a physical address (comma, sub-city, street, etc.)
+  const isAddress = /,|sub.?city|kebele|street|avenue|bole|kirkos|yeka|addis|road/i.test(loc);
+
+  if (applyUrl && applyUrl.startsWith('http')) {
+    howToApply = `🌐 <a href="${h(applyUrl)}">Click Here to Apply</a>`;
+    if (isAddress) {
+      howToApply += `\n📌 In-person: <a href="https://maps.google.com/?q=${encodeURIComponent(loc + ' Ethiopia')}">Get Directions</a>`;
+    }
+  } else if (applyRaw.includes('@')) {
+    // Email address
+    howToApply = `📧 <a href="mailto:${h(applyRaw)}">${h(applyRaw)}</a>`;
+  } else if (isAddress) {
+    howToApply = `📌 In-person: <a href="https://maps.google.com/?q=${encodeURIComponent(loc + ' Ethiopia')}">${h(loc)}</a>`;
+  } else {
+    howToApply = h(applyRaw || 'Check the source portal for application details');
+  }
+
+  // ── Score breakdown ───────────────────────────────────────────────────
+  // Gemini returns score.salary (0-4), score.skills (0-3),
+  //                  score.growth (0-2), score.reputation (0-1), score.total (0-10)
+  const total      = score.total      ?? '?';
+  const salScore   = score.salary     ?? score.sal ?? '-';
+  const sklScore   = score.skills     ?? score.skl ?? '-';
+  const grwScore   = score.growth     ?? score.upgrade ?? '-';
+  const repScore   = score.reputation ?? score.rep ?? '-';
+  const reason     = h(score.reason   || '');
+
+  // Visual score bar
+  const scoreBar = typeof total === 'number'
+    ? (total >= 8 ? '🟢🟢🟢🟢🟢' :
+       total >= 6 ? '🟢🟢🟢🟡⚪' :
+       total >= 4 ? '🟢🟢🟡⚪⚪' : '🟢🟡⚪⚪⚪')
     : '';
 
+  const source = h(job.source || 'EthioJobs');
+
+  // ── Assemble message ───────────────────────────────────────────────────
   const lines = [
     DIVIDER,
-    `🏢 <b>Company:</b> ${h(job.company)}`,
-    `💼 <b>Position:</b> ${h(job.title)}`,
-    `📍 <b>Location:</b> ${h(job.location || 'Ethiopia')}`,
-    `⏰ <b>Deadline:</b> ${h(deadline)}`,
+    `🏢 <b>Company:</b> ${company}`,
+    `💼 <b>Position:</b> ${title}`,
+    `📍 <b>Location:</b> ${location}`,
+    `⏰ <b>Deadline:</b> ${deadline}`,
     DIVIDER,
     ``,
     `📋 <b>About the Role:</b>`,
-    h(about),
+    description,
     ``,
     `🎯 <b>Your Responsibilities:</b>`,
-    ...bullets.map(b => `• ${h(b)}`),
+    responsibilityLines,
     ``,
     `📌 <b>Requirements:</b>`,
-    `- <b>Education:</b> ${h(education)}`,
-    `- <b>Experience:</b> ${h(experience)}`,
-    `- <b>Skills:</b> ${h(skills)}`,
-    `- <b>Other:</b> ${h(other)}`,
+    `- 🎓 Education: ${education}`,
+    `- 💼 Experience: ${experience}`,
+    `- 🛠 Skills: ${skills}`,
     ``,
     `💰 <b>Salary:</b> ${salary}`,
     ``,
@@ -247,11 +143,12 @@ function formatTelegramMessage(job) {
     howToApply,
     ``,
     `⭐ <b>Job Score: ${total}/10</b>  ${scoreBar}`,
-    scoreDetail ? scoreDetail : '',
+    `💰 ${salScore}/4 | 🛠 ${sklScore}/3 | 📈 ${grwScore}/2 | 🏆 ${repScore}/1`,
+    reason ? `💡 ${reason}` : '',
     ``,
-    `📣 <b>Source:</b> ${h(job.source || 'EthioJobs')} | @Ethio_Fresh_Jobs`,
+    `📣 <b>Source:</b> ${source} | @Ethio_Fresh_Jobs`,
     DIVIDER,
-  ].filter(line => line !== null);
+  ].filter(line => line !== null && line !== undefined);
 
   return lines.join('\n');
 }
@@ -293,7 +190,7 @@ async function sendJob(job, dryRun = false) {
   } catch (err) {
     const errData = err.response?.data;
 
-    // Rate limit → wait retry_after seconds, then retry once
+    // Rate limit → wait retry_after seconds then retry once
     if (errData?.error_code === 429) {
       const wait = (errData.parameters?.retry_after || 5) * 1000;
       logger.warn(`Telegram rate-limited. Waiting ${wait / 1000}s…`);
@@ -301,11 +198,13 @@ async function sendJob(job, dryRun = false) {
       return sendJob(job, dryRun);
     }
 
-    // HTML parse error → retry as plain text fallback
+    // HTML parse error → retry as stripped plain text
     if (errData?.error_code === 400) {
       logger.warn(`HTML parse error for "${job.title}", retrying as plain text…`);
       try {
-        const plain = message.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+        const plain = message
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
         await axios.post(`${getTelegramUrl()}/sendMessage`, {
           chat_id: chatId, text: plain,
         }, { timeout: 15000 });
@@ -321,10 +220,10 @@ async function sendJob(job, dryRun = false) {
 }
 
 /**
- * Send all scored jobs to Telegram with delay between posts.
- * @param {Array}   jobs
+ * Send all jobs to Telegram with 2 second delay between messages.
+ * @param {Array}   jobs    — Gemini-processed job objects
  * @param {boolean} dryRun
- * @returns {number} Count of successfully sent messages
+ * @returns {number}        Count of successfully sent messages
  */
 async function sendAll(jobs, dryRun = false) {
   logger.step('🚀', `Routing ${jobs.length} job(s) to Telegram${dryRun ? ' [DRY RUN]' : ''}…`);
