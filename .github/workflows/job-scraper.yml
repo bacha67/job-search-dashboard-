@@ -41,6 +41,7 @@ jobs:
         run: |
           echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
           echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "REQUEST_TIMEOUT_MS=15000"  >> .env
           echo "REQUEST_DELAY_MS=2000"     >> .env
           echo "MAX_JOBS_PER_PORTAL=50"    >> .env
