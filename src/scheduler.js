@@ -6,11 +6,12 @@ require('dotenv').config();
 const cron    = require('node-cron');
 const { execSync } = require('child_process');
 const logger  = require('./utils/logger');
-const { ingestAll } = require('./ingestion');
-const { sanitize }  = require('./filter/sanitizer');
-const { scoreAll }  = require('./scoring/engine');
-const { sendAll }   = require('./telegram/router');
-const { totalSeen } = require('./db/store');
+const { ingestAll }      = require('./ingestion');
+const { sanitize }       = require('./filter/sanitizer');
+const { scoreAll }       = require('./scoring/engine');
+const { sendAll }        = require('./telegram/router');
+const { totalSeen }      = require('./db/store');
+const { processAllJobs } = require('./ai/gemini');
 
 // ─── Auto-push data to GitHub → GitHub Pages dashboard auto-updates ──────────
 function pushDataToGitHub(newJobCount) {
@@ -67,7 +68,7 @@ async function runPipeline() {
     // ── Stage 01: Ingest ────────────────────────────────────────────────
     const raw = await ingestAll();
 
-    // ── Stage 02: Sanitize / Filter ─────────────────────────────────────
+    // ── Stage 02: Sanitize / Filter (fast keyword pre-filter) ────────────
     const filtered = sanitize(raw);
 
     if (filtered.length === 0) {
@@ -76,38 +77,58 @@ async function runPipeline() {
       return;
     }
 
-    // ── Stage 03: Score ─────────────────────────────────────────────────
-    logger.step('🧠', `Scoring ${filtered.length} qualifying job(s)...`);
-    const scored = scoreAll(filtered);
+    // ── Stage 03: AI or Heuristic scoring ───────────────────────────────
+    let scored;
+    const hasGemini = !!process.env.GEMINI_API_KEY;
 
-    // Sort by combined score (descending) so best jobs send first
+    if (hasGemini) {
+      // Gemini AI: extracts fields, validates isITJob + isFreshGradOk, scores
+      logger.step('🤖', `Gemini AI processing ${filtered.length} pre-filtered job(s)...`);
+      scored = await processAllJobs(filtered);
+
+      if (scored.length === 0) {
+        logger.info('Gemini found no qualifying IT/entry-level jobs this cycle.');
+        printStats(startTime, raw.length, filtered.length, 0, 0);
+        return;
+      }
+    } else {
+      // Fallback: keyword-based heuristic scoring (no API key needed)
+      logger.step('🧠', `Scoring ${filtered.length} qualifying job(s) (heuristic mode)...`);
+      scored = scoreAll(filtered);
+    }
+
+    // Sort best jobs first
     scored.sort((a, b) => {
-      const totalA = a.scores.salary + a.scores.upgrade + a.scores.skills;
-      const totalB = b.scores.salary + b.scores.upgrade + b.scores.skills;
-      return totalB - totalA;
+      const totA = a.scores?.total ?? (a.scores?.salary + a.scores?.upgrade + a.scores?.skills);
+      const totB = b.scores?.total ?? (b.scores?.salary + b.scores?.upgrade + b.scores?.skills);
+      return totB - totA;
     });
 
-    logger.ok(`Top job this cycle: "${scored[0].title}" @ ${scored[0].company} ` +
-      `[S:${scored[0].scores.salary} U:${scored[0].scores.upgrade} K:${scored[0].scores.skills}]`);
+    logger.ok(
+      `Top job: "${scored[0].title}" @ ${scored[0].company} ` +
+      `[score: ${scored[0].scores?.total ?? '?'}/10]`
+    );
 
     // ── Stage 04: Send to Telegram ───────────────────────────────────────
     const sent = await sendAll(scored, DRY_RUN);
 
-    // ── Stage 05: Push data/jobs.json to GitHub → triggers Vercel redeploy
+    // ── Stage 05: Push data/jobs.json to GitHub → triggers dashboard update
     if (!DRY_RUN) pushDataToGitHub(sent);
 
-    printStats(startTime, raw.length, filtered.length, sent);
+    printStats(startTime, raw.length, filtered.length, scored.length, sent);
   } catch (err) {
     logger.error(`Pipeline crashed: ${err.message}`);
     logger.error(err.stack);
   }
 }
 
-function printStats(startTime, total = 0, filtered = 0, sent = 0) {
+function printStats(startTime, total = 0, filtered = 0, aiQualified = 0, sent = 0) {
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  const hasGemini = !!process.env.GEMINI_API_KEY;
   logger.step('📈', 'Pipeline Complete');
   logger.dim(`  Total ingested  : ${total}`);
   logger.dim(`  Passed filter   : ${filtered}`);
+  if (hasGemini) logger.dim(`  AI qualified    : ${aiQualified}`);
   logger.dim(`  Sent to channel : ${sent}`);
   logger.dim(`  All-time seen   : ${totalSeen()}`);
   logger.dim(`  Elapsed         : ${elapsed}s`);
