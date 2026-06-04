@@ -1,5 +1,126 @@
 [
   {
+    "job_id": "linked_e7dc3b3e",
+    "title": "Network Administrator",
+    "company": "Ethiopian News Agency",
+    "source": "LinkedIn",
+    "link": "https://et.linkedin.com/jobs/view/network-administrator-4420700205",
+    "location": "Addis Ababa, Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "Entry Level",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 7,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 4.3
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Day-to-day responsibilities as defined in the Network Administrator role at Ethiopian News Agency."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "Data analysis and network engineering provide a structured path to Senior Analyst/Architect with consistent domain-specific promotion ladders.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-04T15:35:38.893Z"
+  },
+  {
+    "job_id": "ethioj_6da36000",
+    "title": "Website & Digital Brand Manager",
+    "company": "TME Leadership & Management Institution",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/T5QnkajdHa-website-digital-brand-manager",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Day-to-day responsibilities as defined in the Website & Digital Brand Manager role at TME Leadership & Management Institution."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "This IT role has a moderate growth trajectory depending on the depth of technical work and mentorship quality at the organization.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-03T19:04:55.565Z"
+  },
+  {
+    "job_id": "ethioj_c65e0280",
+    "title": "Video Content & Media Specialist",
+    "company": "TME Leadership & Management Institution",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/zrrsmq6wZC-video-content-media-specialist",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Day-to-day responsibilities as defined in the Video Content & Media Specialist role at TME Leadership & Management Institution."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "This IT role has a moderate growth trajectory depending on the depth of technical work and mentorship quality at the organization.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-03T19:04:51.928Z"
+  },
+  {
+    "job_id": "ethioj_decfdf32",
+    "title": "Monitoring & Evaluation (M&E) Specialist",
+    "company": "TME Leadership & Management Institution",
+    "source": "Ethiojobs",
+    "link": "https://ethiojobs.net/jobs/XGMSFiqWLN-monitoring-evaluation-me-specialist",
+    "location": "Addis Ababa",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [
+      "🔧 *Tools & Stack:* General IT tools and standard office/enterprise software per job requirements",
+      "📋 *Primary Tasks:* Day-to-day responsibilities as defined in the Monitoring & Evaluation (M&E) Specialist role at TME Leadership & Management Institution."
+    ],
+    "score_reasons": {
+      "salary": "Salary estimate is benchmarked to the local SME average for fresh CS/IT graduates (~8,000–12,000 ETB/month) given no premium company signal was detected.",
+      "upgrade": "This IT role has a moderate growth trajectory depending on the depth of technical work and mentorship quality at the organization.",
+      "skills": "No specific named technologies detected in the listing — skills gained will depend heavily on the actual on-the-job work environment."
+    },
+    "timestamp": "2026-06-03T19:04:48.460Z"
+  },
+  {
     "job_id": "ethioj_b2fc39dc",
     "title": "WASH Intern at Norwegian Church Aid (NCA)",
     "company": "Talent Search - Ethiojobs",
