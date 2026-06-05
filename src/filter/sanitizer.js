@@ -211,10 +211,16 @@ function isEntryLevel(job) {
 
 /**
  * GATE 3: Experience requirement check — discard if clearly requires 2+ yrs.
- * Exception: if the listing also contains "junior", give it a pass — some
- * Ethiopian employers write "2 years" but mean it loosely for junior roles.
+ * Exception 1: if "junior" appears alongside 2+ yrs requirement, keep it.
+ * Exception 2: if GEMINI_API_KEY is set, SKIP this gate entirely — Gemini's
+ *              isFreshGradOk flag is far more accurate than a regex on a
+ *              mixed multi-position description (ETcareers bundles multiple
+ *              roles together, so one role's exp requirement blocks another).
  */
 function hasExperienceRequirement(job) {
+  // Defer to Gemini when available — it reads role-specific experience correctly
+  if (process.env.GEMINI_API_KEY) return false;
+
   const text = [job.title, job.description, job.careerLevel].join(' ');
   if (!EXP_DISQUALIFIERS.some(rx => rx.test(text))) return false;
   // Junior exception — keep even if 2+ yrs mentioned
