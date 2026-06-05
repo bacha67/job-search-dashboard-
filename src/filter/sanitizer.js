@@ -12,21 +12,27 @@ const logger      = require('../utils/logger');
 // ══════════════════════════════════════════════════════════════════════════
 // GATE 0: HARD-REJECT PATTERNS — instant discard regardless of any other signal
 // ══════════════════════════════════════════════════════════════════════════
-const HARD_REJECT_PATTERNS = [
-  // Seniority in title or description
-  /\bsenior\b/i, /\blead\s+(developer|engineer|software|data|system)/i,
+// Seniority patterns — checked in JOB TITLE + careerLevel ONLY.
+// NOT in description — descriptions legitimately say "report to a senior developer"
+// or "work under senior management" for entry-level roles.
+const SENIORITY_TITLE_PATTERNS = [
+  /\bsenior\b/i,
+  /\blead\s+(developer|engineer|software|data|system)/i,
   /\bteam\s+lead\b/i, /\btech\s+lead\b/i,
   /\b(engineering|product|technical|IT|software|project)\s+manager\b/i,
   /\bdirector\b/i, /\bcto\b/i, /\bvp\s+of\b/i, /\bhead\s+of\b/i,
   /\bprinciple\s+(engineer|developer|architect)/i,
   /\bstaff\s+(engineer|developer|scientist)/i,
-  /\barchitect\b(?!\s*intern)/i,   // "architect" but not "architect intern"
-  // Experience requirements — hard thresholds
+  /\barchitect\b(?!\s*intern)/i,
+];
+
+// Experience hard-reject — checked in FULL TEXT (title + description).
+// 3+ years anywhere is a genuine disqualifier.
+const EXP_HARD_PATTERNS = [
   /\b([3-9]|[1-9]\d+)\s*\+?\s*years?\s*(of\s+)?(work|relevant|professional|related)?\s*experience\b/i,
   /minimum\s+(of\s+)?([3-9]|[1-9]\d+)\s*years?/i,
   /at\s+least\s+([3-9]|[1-9]\d+)\s*years?/i,
-  /([3-9]|[1-9]\d+)\+\s*years?/i,
-  // Explicit experienced professional signals
+  /([3-9]|[1-9]\d+)\+\s*years?\b/i,
   /\bexperienced\s+professional\b/i,
   /proven\s+(track\s+record|experience)\s+of\s+\d+/i,
 ];
@@ -42,7 +48,8 @@ const TECH_TITLE_KEYWORDS = [
   'software engineer', 'software developer',
   // IT / ICT
   'information technology', 'it officer', 'it support', 'it specialist',
-  'it technician', 'ict officer', 'ict support', 'ict specialist',
+  'it technician', 'it administrator', 'it admin', 'it manager',
+  'ict officer', 'ict support', 'ict specialist', 'ict administrator',
   // Web / Mobile
   'web developer', 'web designer', 'web engineer',
   'mobile developer', 'mobile app', 'app developer',
@@ -52,10 +59,16 @@ const TECH_TITLE_KEYWORDS = [
   // Computer Science / Engineering
   'computer science', 'computer engineering',
   // Systems / Network / MIS
-  'system admin', 'systems admin', 'sysadmin', 'system administrator',
+  'system admin', 'systems admin', 'sysadmin', 'system administrator', 'systems administrator',
   'network admin', 'network administrator', 'network engineer',
   'management information system', 'mis officer', 'mis analyst',
   'database admin', 'database developer', 'database engineer',
+  // ERP / Business Systems
+  'erp developer', 'erp consultant', 'erp administrator', 'odoo', 'sap consultant',
+  // Digital / Fintech
+  'digital payment', 'digital banking', 'fintech', 'payment system',
+  // GIS
+  'gis analyst', 'gis officer', 'gis developer',
   // Specializations
   'devops', 'cloud engineer', 'site reliability',
   'data analyst', 'data scientist', 'data engineer', 'ml engineer',
@@ -132,11 +145,17 @@ function matchesAny(text, rxList) {
 }
 
 /**
- * GATE 0: Hard-reject check — senior/lead/manager/director/3+yrs instantly discarded.
+ * GATE 0: Hard-reject check.
+ * Seniority → title + careerLevel ONLY (descriptions mention senior staff legitimately).
+ * Experience requirements → full text (3+ years anywhere is a real disqualifier).
  */
 function isHardRejected(job) {
-  const fullText = [job.title, job.description, job.careerLevel].join(' ');
-  return HARD_REJECT_PATTERNS.some(rx => rx.test(fullText));
+  const titleAndLevel = [job.title, job.careerLevel].join(' ');
+  const fullText      = [job.title, job.description, job.careerLevel].join(' ');
+
+  if (SENIORITY_TITLE_PATTERNS.some(rx => rx.test(titleAndLevel))) return true;
+  if (EXP_HARD_PATTERNS.some(rx => rx.test(fullText))) return true;
+  return false;
 }
 
 /**
