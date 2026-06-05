@@ -201,6 +201,9 @@ if (RUN_ONCE) {
   cron.schedule(cronExpression, () => {
     logger.step('⏱️', 'Cron tick — starting pipeline...');
     runPipelineTracked();
+  }, {
+    scheduled: true,
+    timezone: "Africa/Addis_Ababa"
   });
 
   logger.info('Bot is running. Press Ctrl+C to stop.\n');

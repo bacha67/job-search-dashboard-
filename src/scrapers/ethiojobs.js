@@ -4,19 +4,21 @@ const axios   = require('axios');
 const cheerio = require('cheerio');
 const crypto  = require('crypto');
 const logger  = require('../utils/logger');
+const { hasSeen } = require('../db/store');
+const { isTechField } = require('../filter/sanitizer');
 
 // ─── Ethiojobs Scraper ──────────────────────────────────────────────────────
 //
-// LISTING PAGES: Ethiojobs is a Next.js app. Listing pages inject content
-// client-side (cheerio finds 0 job cards). We use cheerio to extract the
-// __NEXT_DATA__ <script> tag which contains all job slugs as server-side JSON.
+// LISTING PAGES: Next.js app — job data is in <script id="__NEXT_DATA__">
+//   Structure: pageProps.jobs.data[] + pageProps.jobs.meta.lastPage
 //
-// DETAIL PAGES: Fully server-side rendered for SEO. Cheerio works perfectly.
-// We extract the complete rawText so Groq AI can parse all structured fields.
+// DETAIL PAGES: SSR for SEO — body text has full content (~22KB).
+//   Also has __NEXT_DATA__ with pageProps.data (structured job object).
+//   We extract rawText from body + structured fields from __NEXT_DATA__.
 
 const SOURCE_NAME = 'EthioJobs';
 const BASE_URL    = 'https://ethiojobs.net';
-const DELAY_MS    = 1500; // 1.5s between detail page requests
+const DELAY_MS    = 1500; // 1.5s between detail page fetches
 
 const CATEGORY_URLS = [
   `${BASE_URL}/jobs?category=Information+Technology`,
@@ -40,162 +42,232 @@ function makeId(url) {
   return crypto.createHash('md5').update(url).digest('hex').slice(0, 12);
 }
 
+function stripHtml(html) {
+  return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 async function fetchHtml(url) {
-  const resp = await axios.get(url, { headers: HEADERS, timeout: 20000 });
+  const resp = await axios.get(url, { headers: HEADERS, timeout: 25000 });
   return resp.data;
 }
 
-/**
- * Extract job slugs and pagination info from a listing page via __NEXT_DATA__.
- * Returns { slugs: string[], totalPages: number }
- */
-function extractListingData(html) {
+function parseNextData(html) {
   const $ = cheerio.load(html);
-  const scriptTag = $('script[id=__NEXT_DATA__]').html();
-  if (!scriptTag) return { slugs: [], totalPages: 1 };
-
-  try {
-    const nextData   = JSON.parse(scriptTag);
-    const pageProps  = nextData?.props?.pageProps ?? {};
-
-    // Structure: pageProps.jobs.data[] + pageProps.jobs.meta.last_page
-    const jobsObj    = pageProps.jobs ?? {};
-    const jobs       = jobsObj.data ?? pageProps.data?.jobs ?? [];
-    const totalPages = jobsObj.meta?.last_page
-                    ?? pageProps.totalPages
-                    ?? 1;
-
-    const slugs = jobs
-      .map(j => j.slug || j.jobSlug || '')
-      .filter(Boolean);
-
-    return { slugs, totalPages: Number(totalPages) || 1 };
-  } catch {
-    return { slugs: [], totalPages: 1 };
-  }
+  const ndTag = $('script').filter((_, el) => $(el).attr('id') === '__NEXT_DATA__').html();
+  if (!ndTag) return null;
+  try { return JSON.parse(ndTag); } catch { return null; }
 }
 
+// ─── Listing page ────────────────────────────────────────────────────────────
 
 /**
- * Fetch a single job detail page and extract raw text + basic fields.
- * Returns null on failure (never throws).
+ * Extract job slugs + total page count from a listing page __NEXT_DATA__.
+ * Correct paths (confirmed by debug):
+ *   slugs      → pageProps.jobs.data[].slug
+ *   totalPages → pageProps.jobs.meta.lastPage
  */
-async function scrapeDetailPage(slug, categoryHint = '') {
+function extractListingData(html) {
+  const nd = parseNextData(html);
+  if (!nd) return { jobs: [], totalPages: 1 };
+
+  const pp         = nd?.props?.pageProps ?? {};
+  const jobsObj    = pp.jobs ?? {};
+  const jobs       = Array.isArray(jobsObj) ? jobsObj : (jobsObj.data ?? []);
+  const totalPages = jobsObj.meta?.lastPage ?? jobsObj.lastPage ?? 1;
+
+  const jobCards = jobs.map(j => ({
+    title: String(j.title || '').trim(),
+    slug: String(j.slug || j.jobSlug || '').trim()
+  })).filter(j => j.slug);
+
+  return { jobs: jobCards, totalPages: Number(totalPages) || 1 };
+}
+
+// ─── Detail page ─────────────────────────────────────────────────────────────
+
+/**
+ * Fetch a job detail page and return a raw job object.
+ * - Extracts rawText from body (SSR rendered, ~22KB)
+ * - Also extracts structured fields from __NEXT_DATA__.pageProps.data
+ * Returns null on failure.
+ */
+async function scrapeDetailPage(slug) {
   const url = `${BASE_URL}/jobs/${slug}`;
   try {
     const html = await fetchHtml(url);
     const $    = cheerio.load(html);
 
-    // Remove noise elements
-    $('script, style, noscript, nav, footer, header, .cookie-banner, iframe').remove();
+    // Remove noise
+    $('script, style, noscript, nav, footer, header, iframe, .cookie-banner').remove();
+    const rawText = $('body').text().replace(/\s+/g, ' ').trim();
 
-    // Raw text — full page body for AI processing
-    const rawText = $('body').text().replace(/\s+/g, ' ').trim().slice(0, 8000);
-
-    // Try to extract basic structured fields for the filter stage
-    const title    = $('h1').first().text().trim()
-                  || $('[class*="title"]').first().text().trim()
-                  || slug.replace(/-/g, ' ');
-    const company  = $('[class*="company"]').first().text().trim()
-                  || $('[class*="employer"]').first().text().trim()
-                  || '';
-    const location = $('[class*="location"]').first().text().trim()
-                  || $('[class*="place"]').first().text().trim()
-                  || 'Addis Ababa, Ethiopia';
-    const deadline = $('[class*="deadline"]').first().text().trim()
-                  || $('[class*="expire"]').first().text().trim()
-                  || 'Not specified';
-
-    if (!rawText || rawText.length < 50) {
-      console.warn(`[Ethiojobs] Skipping thin page: ${url}`);
-      return null;
+    if (rawText.length < 100) {
+      // Try to get content from __NEXT_DATA__ on detail page
+      const nd  = parseNextData(html);
+      const job = nd?.props?.pageProps?.data ?? nd?.props?.pageProps?.job ?? null;
+      if (!job) {
+        logger.warn(`[Ethiojobs] Thin page, no fallback: ${url}`);
+        return null;
+      }
+      // Build rawText from structured fields
+      const descText = stripHtml(job.description);
+      if (descText.length < 50) {
+        logger.warn(`[Ethiojobs] Skipping empty job: ${url}`);
+        return null;
+      }
+      return buildJobFromData(job, url, descText);
     }
 
+    // Primary path: body text is rich — also try __NEXT_DATA__ for structured fields
+    const nd  = parseNextData(html);
+    const job = nd?.props?.pageProps?.data ?? nd?.props?.pageProps?.job ?? null;
+
+    if (job) {
+      return buildJobFromData(job, url, rawText.slice(0, 8000));
+    }
+
+    // Fallback: extract fields from HTML directly
+    const title    = $('h1').first().text().trim() || slug.split('-').slice(1).join(' ');
+    const company  = $('[class*="company"], [class*="employer"]').first().text().trim() || '';
+    const location = $('[class*="location"], [class*="place"]').first().text().trim() || 'Addis Ababa, Ethiopia';
+    const deadline = $('[class*="deadline"], [class*="expire"]').first().text().trim() || 'Not specified';
+
     return {
-      id      : makeId(url),
-      title   : title.slice(0, 200),
-      company : company.slice(0, 200),
-      location: location.slice(0, 200),
-      deadline: deadline.slice(0, 100),
-      rawText,
+      id       : makeId(url),
+      title    : title.slice(0, 200),
+      company  : company.slice(0, 200),
+      location : location.slice(0, 200),
+      deadline : deadline.slice(0, 100),
+      rawText  : rawText.slice(0, 8000),
       url,
       sourceUrl: url,
-      source  : SOURCE_NAME,
+      source   : SOURCE_NAME,
     };
+
   } catch (err) {
-    console.warn(`[Ethiojobs] Detail fetch failed for ${slug}: ${err.message}`);
+    logger.warn(`[Ethiojobs] Detail fetch failed for ${slug}: ${err.message}`);
     return null;
   }
 }
 
-/**
- * Scrape one category URL — paginate through ALL pages, collect slugs.
- */
+function buildJobFromData(job, url, rawText) {
+  const desc = stripHtml(job.description || job.body || '');
+  return {
+    id       : makeId(url),
+    title    : String(job.title || '').trim().slice(0, 200),
+    company  : String(job.company?.name || job.company || job.employer || '').trim().slice(0, 200),
+    location : String(job.location || job.city || 'Addis Ababa, Ethiopia').trim().slice(0, 200),
+    deadline : String(job.deadline || job.expiry || job.closing_date || 'Not specified').trim().slice(0, 100),
+    rawText  : (rawText + '\n\n' + desc).slice(0, 8000),
+    url,
+    sourceUrl: url,
+    source   : SOURCE_NAME,
+  };
+}
+
+// ─── Category scraper ─────────────────────────────────────────────────────────
+
 async function scrapeCategory(categoryUrl) {
-  const slugs = new Set();
+  const allSlugs = new Set();
   let page = 1;
   let totalPages = 1;
+  const maxPages = parseInt(process.env.MAX_LISTING_PAGES || '5', 10);
 
   do {
     const pageUrl = page === 1 ? categoryUrl : `${categoryUrl}&page=${page}`;
     try {
       const html = await fetchHtml(pageUrl);
-      const data  = extractListingData(html);
+      const { jobs, totalPages: tp } = extractListingData(html);
 
-      if (data.slugs.length === 0) {
-        break; // No jobs found on this page — stop paginating
+      if (jobs.length === 0) break;
+
+      // Check if all slugs on this page have already been seen
+      let allSeen = true;
+      let addedThisPage = 0;
+      for (const card of jobs) {
+        // PRE-FILTER: skip non-tech titles immediately to protect network & time
+        if (!isTechField({ title: card.title })) {
+          continue;
+        }
+
+        const url = `${BASE_URL}/jobs/${card.slug}`;
+        const id = makeId(url);
+        if (!hasSeen(id)) {
+          allSeen = false;
+        }
+        allSlugs.add(card.slug);
+        addedThisPage++;
       }
 
-      data.slugs.forEach(s => slugs.add(s));
-      totalPages = data.totalPages;
-      logger.dim(`  [Ethiojobs] ${categoryUrl.split('=').pop()} — page ${page}/${totalPages} | +${data.slugs.length} slugs`);
+      if (page === 1) totalPages = tp;
+
+      const cat = categoryUrl.split('=').pop();
+      logger.dim(`  [Ethiojobs] ${cat} — page ${page}/${totalPages} | +${addedThisPage} tech slugs (total: ${allSlugs.size})`);
+
+      if (allSeen && addedThisPage > 0) {
+        logger.ok(`  [Ethiojobs] ${cat} — stopping listing pagination early: all tech jobs on page ${page} have already been seen.`);
+        break;
+      }
 
     } catch (err) {
-      logger.warn(`[Ethiojobs] Listing failed (page ${page}): ${err.message}`);
+      logger.warn(`[Ethiojobs] Listing page ${page} failed: ${err.message}`);
       break;
     }
 
     page++;
-    await delay(800); // small delay between listing pages
-  } while (page <= totalPages);
+    await delay(800);
+  } while (page <= totalPages && page <= maxPages);
 
-  return [...slugs];
+  return [...allSlugs];
 }
 
-// ─── Main Export ─────────────────────────────────────────────────────────────
+// ─── Main ────────────────────────────────────────────────────────────────────
 
-/**
- * Scrape all 4 Ethiojobs IT categories, fetch full detail pages.
- * Returns array of raw job objects with rawText for AI processing.
- */
 async function scrapeEthioJobs() {
   logger.step('🌐', `Scraping ${SOURCE_NAME} (${CATEGORY_URLS.length} categories)...`);
 
-  // Step 1: Collect all unique slugs across all categories
+  // Step 1: Collect all unique slugs
   const allSlugs = new Set();
   for (const catUrl of CATEGORY_URLS) {
-    const categorySlugs = await scrapeCategory(catUrl);
-    categorySlugs.forEach(s => allSlugs.add(s));
+    const slugs = await scrapeCategory(catUrl);
+    slugs.forEach(s => allSlugs.add(s));
   }
 
-  logger.ok(`[Ethiojobs] Found ${allSlugs.size} unique job slugs — fetching detail pages...`);
-
-  // Step 2: Fetch detail pages for each unique slug
-  const jobs = [];
   const slugList = [...allSlugs];
+  logger.ok(`[Ethiojobs] ${slugList.length} unique slugs found — filtering out already seen/processed...`);
 
-  for (let i = 0; i < slugList.length; i++) {
-    const slug = slugList[i];
-    const job  = await scrapeDetailPage(slug);
+  // Pre-filter slugList to skip already seen ones before fetching details
+  const newSlugs = [];
+  for (const slug of slugList) {
+    const url = `${BASE_URL}/jobs/${slug}`;
+    const id = makeId(url);
+    if (!hasSeen(id)) {
+      newSlugs.push(slug);
+    }
+  }
+
+  logger.ok(`[Ethiojobs] ${newSlugs.length}/${slugList.length} slugs are new — fetching detail pages...`);
+
+  const maxJobs = parseInt(process.env.MAX_JOBS_PER_PORTAL || '50', 10);
+
+  // Step 2: Fetch detail pages
+  const jobs = [];
+  for (let i = 0; i < newSlugs.length; i++) {
+    if (jobs.length >= maxJobs) {
+      logger.ok(`[Ethiojobs] Reached limit of ${maxJobs} jobs — stopping detail page fetches.`);
+      break;
+    }
+
+    const job = await scrapeDetailPage(newSlugs[i]);
     if (job) {
       jobs.push(job);
-      logger.dim(`  [Ethiojobs] ✓ ${i + 1}/${slugList.length} — ${job.title.slice(0, 60)}`);
+      logger.dim(`  [Ethiojobs] ✓ ${jobs.length}/${newSlugs.length} — ${job.title.slice(0, 60)}`);
     }
     await delay(DELAY_MS);
   }
 
-  logger.ok(`[Ethiojobs] Scraped ${jobs.length} jobs from ${allSlugs.size} slugs`);
+  logger.ok(`[Ethiojobs] Scraped ${jobs.length} new jobs from ${newSlugs.length} new slugs`);
   return jobs;
 }
 
-module.exports = { scrapeEthioJobs };
+module.exports = { scrape: scrapeEthioJobs, scrapeEthioJobs, SOURCE_NAME };

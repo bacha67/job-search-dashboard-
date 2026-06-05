@@ -5,157 +5,128 @@ const { markSeen } = require('../db/store');
 const jsonEgress   = require('../output/jsonEgress');
 const logger       = require('../utils/logger');
 
-// ─── Stage 04: Telegram Router ────────────────────────────────────────────────
-// Formats Gemini-processed job objects into HTML messages and sends them.
-// All content fields (description, responsibilities, requirements, score.reason)
-// come pre-extracted from Gemini — no builders or parsers needed here.
-
 function getTelegramUrl() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error('TELEGRAM_BOT_TOKEN is not set in .env');
   return `https://api.telegram.org/bot${token}`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// HTML ESCAPING — only 3 entities needed for Telegram HTML parse_mode
-// ─────────────────────────────────────────────────────────────────────────
-
-function h(s) {
-  return String(s ?? 'Not specified')
+// Helper to escape HTML characters and default to 'Not specified'
+function h(val) {
+  if (val === null || val === undefined || String(val).trim() === '' || String(val).trim() === 'null') {
+    return 'Not specified';
+  }
+  return String(val)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .trim();
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// FORMATTER — uses Gemini fields directly (no parsing/prediction needed)
-// ─────────────────────────────────────────────────────────────────────────
-
-const DIVIDER = '━━━━━━━━━━━━━━━━━━━━━';
-
 function formatTelegramMessage(job) {
-  const score = job.score || job.scores || {};
+  const company = h(job.company);
+  const title = h(job.title);
+  const location = h(job.location);
+  const deadline = h(job.deadline);
+  const description = h(job.description);
 
-  // ── Header fields ──────────────────────────────────────────────────────
-  const company  = h(job.company);
-  const title    = h(job.title);
-  const location = h(job.location || 'Ethiopia');
-  const deadline = h(job.deadline || 'Not specified');
-
-  // ── Description (2-3 sentences from Gemini) ───────────────────────────
-  const description = h(job.description || 'No description available.');
-
-  // ── Responsibilities (Gemini array → bullet list) ─────────────────────
-  const responsibilities = Array.isArray(job.responsibilities) && job.responsibilities.length > 0
-    ? job.responsibilities
-    : (typeof job.responsibilities === 'string' && job.responsibilities
-        ? job.responsibilities.split(/[.;]+/).filter(s => s.trim().length > 8)
-        : ['Check job posting for full details']);
-
-  const responsibilityLines = responsibilities
-    .slice(0, 5)
-    .map(r => `- ${h(r)}`)
-    .join('\n');
-
-  // ── Requirements section ───────────────────────────────────────────────
-  const education  = h(job.education  || 'Not specified');
-
-  // Experience: show years + ✅ badge if fresh grad ok
-  const expRaw     = String(job.experience ?? 'Not specified');
-  const freshBadge = job.isFreshGradOk ? ' ✅ <b>Fresh Graduate OK!</b>' : '';
-  const experience = h(expRaw) + freshBadge;
-
-  // Skills: pull from requirements array (Gemini provides these)
-  const reqArray = Array.isArray(job.requirements) ? job.requirements : [];
-  const skills   = reqArray.length > 0
-    ? reqArray.slice(0, 5).map(r => h(r)).join(', ')
-    : 'See job posting for details';
-
-  // ── Salary ────────────────────────────────────────────────────────────
-  const salary = h(job.salary || 'Not disclosed');
-
-  // ── How to Apply ──────────────────────────────────────────────────────
-  let howToApply;
-  const applyUrl = job.applyUrl || job.sourceUrl || job.url || '';
-  const applyRaw = job.howToApply || '';
-  const loc      = (job.location || '').trim();
-
-  // Check if location looks like a physical address (comma, sub-city, street, etc.)
-  const isAddress = /,|sub.?city|kebele|street|avenue|bole|kirkos|yeka|addis|road/i.test(loc);
-
-  if (applyUrl && applyUrl.startsWith('http')) {
-    howToApply = `🌐 <a href="${h(applyUrl)}">Click Here to Apply</a>`;
-    if (isAddress) {
-      howToApply += `\n📌 In-person: <a href="https://maps.google.com/?q=${encodeURIComponent(loc + ' Ethiopia')}">Get Directions</a>`;
+  // Responsibilities formatting (up to 4 items):
+  let respLines = '';
+  if (Array.isArray(job.responsibilities) && job.responsibilities.length > 0) {
+    respLines = job.responsibilities.slice(0, 4).map(r => `- ${h(r)}`).join('\n');
+  } else if (typeof job.responsibilities === 'string' && job.responsibilities.trim().length > 0) {
+    const splitResps = job.responsibilities.split(/[.;\n]+/).map(s => s.trim()).filter(s => s.length > 0);
+    if (splitResps.length > 0) {
+      respLines = splitResps.slice(0, 4).map(r => `- ${h(r)}`).join('\n');
+    } else {
+      respLines = `- Not specified`;
     }
-  } else if (applyRaw.includes('@')) {
-    // Email address
-    howToApply = `📧 <a href="mailto:${h(applyRaw)}">${h(applyRaw)}</a>`;
-  } else if (isAddress) {
-    howToApply = `📌 In-person: <a href="https://maps.google.com/?q=${encodeURIComponent(loc + ' Ethiopia')}">${h(loc)}</a>`;
   } else {
-    howToApply = h(applyRaw || 'Check the source portal for application details');
+    respLines = `- Not specified`;
   }
 
-  // ── Score breakdown ───────────────────────────────────────────────────
-  // Gemini returns score.salary (0-4), score.skills (0-3),
-  //                  score.growth (0-2), score.reputation (0-1), score.total (0-10)
-  const total      = score.total      ?? '?';
-  const salScore   = score.salary     ?? score.sal ?? '-';
-  const sklScore   = score.skills     ?? score.skl ?? '-';
-  const grwScore   = score.growth     ?? score.upgrade ?? '-';
-  const repScore   = score.reputation ?? score.rep ?? '-';
-  const reason     = h(score.reason   || '');
+  const education = h(job.education);
 
-  // Visual score bar
-  const scoreBar = typeof total === 'number'
-    ? (total >= 8 ? '🟢🟢🟢🟢🟢' :
-       total >= 6 ? '🟢🟢🟢🟡⚪' :
-       total >= 4 ? '🟢🟢🟡⚪⚪' : '🟢🟡⚪⚪⚪')
-    : '';
+  // Experience formatting:
+  let experienceText = '';
+  if (job.experience === null || job.experience === undefined || String(job.experience).trim() === '' || String(job.experience).trim() === 'Not specified') {
+    experienceText = 'Not specified';
+  } else {
+    const isFresh = job.isFreshGradOk === true || String(job.isFreshGradOk).toLowerCase() === 'true';
+    experienceText = `${h(job.experience)} years${isFresh ? ' ✅ Fresh Graduate OK!' : ''}`;
+  }
+
+  // Skills formatting:
+  let skillsStr = 'Not specified';
+  if (Array.isArray(job.requirements) && job.requirements.length > 0) {
+    skillsStr = job.requirements.map(r => h(r)).join(', ');
+  } else if (typeof job.requirements === 'string' && job.requirements.trim().length > 0) {
+    skillsStr = h(job.requirements);
+  }
+
+  const salary = h(job.salary);
+
+  // How to Apply formatting:
+  let applyInfo = 'Not specified';
+  const applyUrl = job.applyUrl || '';
+  const howToApply = job.howToApply || '';
+  const emailMatch = howToApply.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+
+  if (applyUrl && applyUrl.trim().startsWith('http')) {
+    applyInfo = `<a href="${h(applyUrl.trim())}">Click here to apply</a>`;
+  } else {
+    const hasAddress = /sub.?city|kebele|street|avenue|building|bldg|road|office|floor|in.?person/i.test(howToApply);
+    if (hasAddress) {
+      applyInfo = `${h(howToApply)}\nhttps://maps.google.com/?q=${encodeURIComponent(howToApply.trim())}+Ethiopia`;
+    } else if (emailMatch) {
+      applyInfo = h(emailMatch[0]);
+    } else if (howToApply.trim()) {
+      applyInfo = h(howToApply);
+    }
+  }
+
+  // Score formatting:
+  const score = job.score || job.scores || {};
+  const totalScore = score.total !== null && score.total !== undefined ? score.total : 'Not specified';
+  const salaryScore = score.salary !== null && score.salary !== undefined ? score.salary : 'Not specified';
+  const skillsScore = score.skills !== null && score.skills !== undefined ? score.skills : 'Not specified';
+  const growthScore = score.growth !== null && score.growth !== undefined ? score.growth : 'Not specified';
+  const repScore = score.reputation !== null && score.reputation !== undefined ? score.reputation : 'Not specified';
+  const reasonScore = score.reason !== null && score.reason !== undefined ? h(score.reason) : 'Not specified';
 
   const source = h(job.source || 'EthioJobs');
+  const jobUrl = h(job.url || job.sourceUrl || '#');
 
-  // ── Assemble message ───────────────────────────────────────────────────
-  const lines = [
-    DIVIDER,
-    `🏢 <b>Company:</b> ${company}`,
-    `💼 <b>Position:</b> ${title}`,
-    `📍 <b>Location:</b> ${location}`,
-    `⏰ <b>Deadline:</b> ${deadline}`,
-    DIVIDER,
-    ``,
-    `📋 <b>About the Role:</b>`,
-    description,
-    ``,
-    `🎯 <b>Your Responsibilities:</b>`,
-    responsibilityLines,
-    ``,
-    `📌 <b>Requirements:</b>`,
-    `- 🎓 Education: ${education}`,
-    `- 💼 Experience: ${experience}`,
-    `- 🛠 Skills: ${skills}`,
-    ``,
-    `💰 <b>Salary:</b> ${salary}`,
-    ``,
-    `🔗 <b>How to Apply:</b>`,
-    howToApply,
-    ``,
-    `⭐ <b>Job Score: ${total}/10</b>  ${scoreBar}`,
-    `💰 ${salScore}/4 | 🛠 ${sklScore}/3 | 📈 ${grwScore}/2 | 🏆 ${repScore}/1`,
-    reason ? `💡 ${reason}` : '',
-    ``,
-    `📣 <b>Source:</b> ${source} | @Ethio_Fresh_Jobs`,
-    DIVIDER,
-  ].filter(line => line !== null && line !== undefined);
+  return `━━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Company:</b> ${company}
+💼 <b>Position:</b> ${title}
+📍 <b>Location:</b> ${location}
+⏰ <b>Deadline:</b> ${deadline}
+━━━━━━━━━━━━━━━━━━━━━
 
-  return lines.join('\n');
+📋 <b>About the Role:</b>
+${description}
+
+🎯 <b>Your Responsibilities:</b>
+${respLines}
+
+📌 <b>Requirements:</b>
+- 🎓 Education: ${education}
+- 💼 Experience: ${experienceText}
+- 🛠 Skills: ${skillsStr}
+
+💰 <b>Salary:</b> ${salary}
+
+🔗 <b>How to Apply:</b>
+${applyInfo}
+
+⭐ <b>Job Score: ${totalScore}/10</b>
+💰 Salary: ${salaryScore}/4 | 🛠 Skills: ${skillsScore}/3 | 📈 Growth: ${growthScore}/2 | 🏆 Rep: ${repScore}/1
+💡 ${reasonScore}
+
+📣 <b>Source:</b> ${source} | <a href="${jobUrl}">View Original</a>
+━━━━━━━━━━━━━━━━━━━━━`;
 }
-
-// ─────────────────────────────────────────────────────────────────────────
-// SENDER
-// ─────────────────────────────────────────────────────────────────────────
 
 async function sendJob(job, dryRun = false) {
   const message = formatTelegramMessage(job);
@@ -219,12 +190,6 @@ async function sendJob(job, dryRun = false) {
   }
 }
 
-/**
- * Send all jobs to Telegram with 2 second delay between messages.
- * @param {Array}   jobs    — Gemini-processed job objects
- * @param {boolean} dryRun
- * @returns {number}        Count of successfully sent messages
- */
 async function sendAll(jobs, dryRun = false) {
   logger.step('🚀', `Routing ${jobs.length} job(s) to Telegram${dryRun ? ' [DRY RUN]' : ''}…`);
 

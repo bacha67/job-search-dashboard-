@@ -308,4 +308,4 @@ function sanitize(jobs) {
   return results;
 }
 
-module.exports = { sanitize };
+module.exports = { sanitize, isTechField };
