@@ -3,7 +3,7 @@ name: 🇪🇹 Ethiopian Job Bot
 # ── Triggers ──────────────────────────────────────────────────────────────────
 on:
   schedule:
-    - cron: '0 5 * * *'   # Once daily at 05:00 UTC = 08:00 AM East Africa Time
+    - cron: '0 5,18 * * *'   # Twice daily: 05:00 UTC = 08:00 AM EAT | 18:00 UTC = 09:00 PM EAT
   workflow_dispatch:          # Manual "Run workflow" button in GitHub Actions UI
 
 # ── Permissions ───────────────────────────────────────────────────────────────
