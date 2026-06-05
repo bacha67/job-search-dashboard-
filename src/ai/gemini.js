@@ -8,7 +8,8 @@ const logger = require('../utils/logger');
 // score the job, and determine IT/fresh-grad eligibility — all from rawText.
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_MODEL   = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 // Truncate rawText to avoid sending huge payloads (Gemini charges per token)
 const MAX_RAW_TEXT_CHARS = 4000;
