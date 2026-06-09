@@ -23,7 +23,8 @@ const MAX_STORED  = 500; // keep last 500 jobs to prevent unbounded growth
  * Format: {source_prefix}_{urlHash8}
  */
 function generateJobId(job) {
-  const hash = crypto.createHash('md5').update(job.sourceUrl || job.id).digest('hex').slice(0, 8);
+  if (job.id) return job.id;
+  const hash = crypto.createHash('md5').update(job.sourceUrl || '').digest('hex').slice(0, 8);
   const prefix = (job.source || 'job').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 6);
   return `${prefix}_${hash}`;
 }

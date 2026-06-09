@@ -171,7 +171,7 @@ async function scrapeCategory(categoryUrl) {
   const allSlugs = new Set();
   let page = 1;
   let totalPages = 1;
-  const maxPages = parseInt(process.env.MAX_LISTING_PAGES || '5', 10);
+  const maxPages = parseInt(process.env.MAX_LISTING_PAGES || '10', 10);
 
   do {
     const pageUrl = page === 1 ? categoryUrl : `${categoryUrl}&page=${page}`;
