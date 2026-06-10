@@ -63,6 +63,9 @@ const TECH_TITLE_KEYWORDS = [
   'network admin', 'network administrator', 'network engineer',
   'management information system', 'mis officer', 'mis analyst',
   'database admin', 'database developer', 'database engineer',
+  'system analyst', 'systems analyst', 'information systems', 'information system',
+  'data officer', 'database officer', 'network officer', 'it coordinator', 'ict coordinator',
+  'computer technician', 'computer support',
   // ERP / Business Systems
   'erp developer', 'erp consultant', 'erp administrator', 'odoo', 'sap consultant',
   // Digital / Fintech
@@ -99,6 +102,7 @@ const NON_TECH_TITLE_REJECT = [
   /\bteacher\b/i, /\bprocurement\b/i, /\blogistics\b/i, /\bwarehouse\b/i,
   /\bmarketing\s+officer\b/i, /\bsales\s+(rep|agent|officer)\b/i,
   /tiktok/i, /beautiful\s+girl/i, /model\s+recruit/i,
+  /\b(rfp|tender|bid|request\s+for\s+proposal|expression\s+of\s+interest|eoi)\b/i,
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -168,13 +172,25 @@ function isTechField(job) {
   // Always reject explicitly non-tech titles
   if (NON_TECH_TITLE_REJECT.some(rx => rx.test(title))) return false;
 
-  // Must match a specific tech keyword in title
-  if (TECH_TITLE_KEYWORDS.some(kw => title.includes(kw))) return true;
+  // Must match a specific tech keyword in title (with word boundary protection for short acronyms)
+  if (TECH_TITLE_KEYWORDS.some(kw => {
+    if (/^(it|ict|mis|gis)\b/.test(kw)) {
+      const rx = new RegExp('\\b' + kw + '\\b', 'i');
+      return rx.test(title);
+    }
+    return title.includes(kw);
+  })) return true;
 
   // For Ethiojobs: also trust the structured IT catalog category
   if (job.source === 'Ethiojobs' && job.categories?.length > 0) {
     const cats = job.categories.join(' ').toLowerCase();
-    if (TECH_TITLE_KEYWORDS.some(kw => cats.includes(kw))) return true;
+    if (TECH_TITLE_KEYWORDS.some(kw => {
+      if (/^(it|ict|mis|gis)\b/.test(kw)) {
+        const rx = new RegExp('\\b' + kw + '\\b', 'i');
+        return rx.test(cats);
+      }
+      return cats.includes(kw);
+    })) return true;
   }
 
   return false;
