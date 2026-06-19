@@ -1,5 +1,61 @@
 [
   {
+    "job_id": "e1b3f678dc3a",
+    "title": "Full-Stack & Mobile Software Engineer",
+    "company": "E and B Business Consultancy PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/xuTxICcEin-full-stack-mobile-software-engineer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 0.5,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-19T19:50:49.223Z"
+  },
+  {
+    "job_id": "4fd2a3a010a0",
+    "title": "Data Analyst",
+    "company": "Hanns R. Neumann Stiftung (HRNS)",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/zM7BjsJ4CF-data-analyst",
+    "location": "Bahir Dar, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-19T19:50:46.626Z"
+  },
+  {
     "job_id": "9f1920c852ad",
     "title": "IT Support Officer",
     "company": "Ethiopian Agricultural Transformation Agency (ATA)",
