@@ -1,5 +1,33 @@
 [
   {
+    "job_id": "132c30136c29",
+    "title": "IT Officer",
+    "company": "Susan's Highland Lodge",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/ESF89ETKh6-it-officer",
+    "location": "Dilla, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 0.5,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-22T10:38:39.760Z"
+  },
+  {
     "job_id": "5536414568c6",
     "title": "Development of MINCH 6768 Multimedia Platform Strategic Roadmap and Operational Framework",
     "company": "Ethiopian Center for Disability and Development (ECDD)",
