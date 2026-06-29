@@ -1,5 +1,33 @@
 [
   {
+    "job_id": "15ef025f5de5",
+    "title": "IT Support Officer",
+    "company": "LEOFAM BUSINESS GROUP",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/3QDVQvRQAJ-it-support-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-29T19:58:14.781Z"
+  },
+  {
     "job_id": "416bbb0594d2",
     "title": "IT Support and Helpdesk Coordinator",
     "company": "Washington Healthcare PLC",
