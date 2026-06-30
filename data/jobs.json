@@ -1,5 +1,89 @@
 [
   {
+    "job_id": "5c848feb4d6b",
+    "title": "System Administrator and Technical Support Officer",
+    "company": "Oromia Private Schools Association",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/JL9RefObJg-system-administrator-and-technical-support-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-30T19:58:01.470Z"
+  },
+  {
+    "job_id": "8dfc9b45e7a7",
+    "title": "IT Specialist & CCTV Operator",
+    "company": "Golden Star Business Group",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/HLLanIsFwR-it-specialist-cctv-operator",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-30T19:57:59.274Z"
+  },
+  {
+    "job_id": "97cffa273a85",
+    "title": "Database Administrator for Addis Ababa",
+    "company": "Dashen Bank S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/kTxeWc1E6c-database-administrator-for-addis-ababa",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 2,
+      "skills": 2,
+      "reputation": 1,
+      "overall_average": 6
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-06-30T19:57:57.020Z"
+  },
+  {
     "job_id": "15ef025f5de5",
     "title": "IT Support Officer",
     "company": "LEOFAM BUSINESS GROUP",
