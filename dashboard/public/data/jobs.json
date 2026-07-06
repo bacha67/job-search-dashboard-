@@ -1,5 +1,145 @@
 [
   {
+    "job_id": "f5562209526b",
+    "title": "Junior IT Officer",
+    "company": "BEAEKA General Business PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/R3Mlq9GVEw-junior-it-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 0.5,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T19:57:15.066Z"
+  },
+  {
+    "job_id": "ee5f747287e2",
+    "title": "UI/UX Designer",
+    "company": "Haron Computers",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/CARy4jGcNQ-uiux-designer",
+    "location": "Piassa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T19:57:12.821Z"
+  },
+  {
+    "job_id": "30eb546b2beb",
+    "title": "CMMS Database Officer",
+    "company": "BGI Ethiopia",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/TKQKj6bIQ2-cmms-database-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 2,
+      "reputation": 0.5,
+      "overall_average": 4.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T19:57:10.360Z"
+  },
+  {
+    "job_id": "06c66739e9c9",
+    "title": "Backend Engineer",
+    "company": "Kifiya Financial Technologies",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/EXGYY2Csky-backend-engineer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 1,
+      "skills": 3,
+      "reputation": 0.5,
+      "overall_average": 5.5
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T19:57:07.992Z"
+  },
+  {
+    "job_id": "1ef8cea416c4",
+    "title": "IT Support Engineer",
+    "company": "East Africa Bottling Share Company - Coca Cola",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/j1O1vBCQiY-it-support-engineer",
+    "location": "Sebeta, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 2,
+      "skills": 2,
+      "reputation": 1,
+      "overall_average": 6
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T19:57:05.555Z"
+  },
+  {
     "job_id": "d9d1ad24ad3e",
     "title": "Cloud and Core Systems Administrator-Head Office",
     "company": "Dashen Bank S.C",
