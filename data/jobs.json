@@ -1,5 +1,33 @@
 [
   {
+    "job_id": "d9d1ad24ad3e",
+    "title": "Cloud and Core Systems Administrator-Head Office",
+    "company": "Dashen Bank S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/BNpFWv8KiD-cloud-and-core-systems-administrator-head-office-addis-ababa",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 1,
+      "upgrade": 2,
+      "skills": 2,
+      "reputation": 1,
+      "overall_average": 6
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-06T09:01:03.649Z"
+  },
+  {
     "job_id": "f72f8fe17aa5",
     "title": "Systems / Applications & Helpdesk Technician",
     "company": "Kurmuk Gold Mine PLC",
