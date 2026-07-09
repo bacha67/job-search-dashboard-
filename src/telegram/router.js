@@ -61,15 +61,36 @@ function formatTelegramMessage(job) {
 
   const jobUrl = h(job.url || job.sourceUrl) || '#';
 
-    respBlock   ? respBlock.trim()                              : null,
-    '',
-    `🔗 <b>How to Apply:</b>\n${applyBlock}`,
-    '',
-    `📣 <a href="${jobUrl}">View Full Job Post</a> | @Ethio_Fresh_Jobs`,
-    '━━━━━━━━━━━━━━━━━━━━━',
-  ].filter(line => line !== null).join('\n');
+  // ── Build message — null entries are filtered out ──────────────────────────
+  const DIVIDER = '─────────────────────';
 
-  return lines;
+  const parts = [
+    '🚀 <b>New Job Alert!</b>',
+    '',
+    company  ? `🏢 <b>${company}</b>`        : null,
+    title    ? `💼 ${title}`                 : null,
+    location ? `📍 ${location}`              : null,
+    deadline ? `⏰ Deadline: ${deadline}`    : null,
+    '',
+    DIVIDER,
+    description ? `📋 <b>What You\'ll Do:</b>\n${description}` : null,
+    '',
+    respBlock,
+    '',
+    DIVIDER,
+    applyLine,
+    directionsLine,
+    '',
+    DIVIDER,
+    `🌐 <a href="${jobUrl}">View Full Post on EthioJobs</a>`,
+    '📢 Follow <b>@Ethio_Fresh_Jobs</b> for daily job updates!',
+  ];
+
+  return parts
+    .filter(line => line !== null)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 async function sendJob(job, dryRun = false) {
