@@ -21,15 +21,14 @@ async function processJobWithAI(rawJob) {
     .replace(/\s+/g, ' ').trim().slice(0, MAX_RAW_TEXT);
 
   const prompt = `
-You are an Ethiopian job assistant helping fresh CS/IT graduates find jobs.
-Analyze this job posting and return ONLY a valid JSON object, no markdown, no explanation, no backticks.
+You are an Ethiopian job assistant. Analyze this job posting and return ONLY a valid JSON object, no markdown, no explanation, no backticks.
 
 JOB DATA:
 Title: ${rawJob.title}
 Company: ${rawJob.company}
 Location: ${rawJob.location}
-URL: ${rawJob.url || rawJob.sourceUrl}
-Full Text: ${rawText}
+URL: ${rawJob.url}
+Full Text: ${rawJob.rawText}
 
 Return exactly this JSON structure:
 {
@@ -37,36 +36,19 @@ Return exactly this JSON structure:
   "company": "company name",
   "location": "city, Ethiopia",
   "deadline": "deadline date or Not specified",
-  "education": "degree required or Not specified",
-  "experience": "0 if fresh graduate or not mentioned, otherwise number",
-  "isFreshGradOk": true or false,
   "isITJob": true or false,
-  "salary": "amount in ETB or Not disclosed",
   "description": "2-3 sentence summary of what this job is about",
   "responsibilities": ["responsibility 1", "responsibility 2", "responsibility 3", "responsibility 4"],
-  "requirements": ["requirement 1", "requirement 2", "requirement 3"],
-  "howToApply": "email, URL, or physical address",
   "applyUrl": "direct application URL or null",
-  "score": {
-    "salary": 0-4,
-    "skills": 0-3,
-    "growth": 0-2,
-    "reputation": 0-1,
-    "total": 0-10,
-    "reason": "one sentence explaining the score"
-  }
+  "howToApply": "email or physical address if no URL",
+  "source": "EthioJobs"
 }
 
-Scoring rules:
-- salary: 4=above 15000ETB mentioned, 2=8000-15000ETB, 1=not mentioned
-- skills: 3=teaches React/Node/Python/AI/cloud/Docker, 2=general IT skills, 1=basic admin
-- growth: 2=large or well-known company, 1=mid-size company, 0.5=unknown
-- reputation: 1=well known Ethiopian or international company, 0.5=unknown
-- total = sum of all four scores
+isITJob = true if job is related to: software, IT, computer science, programming, web, mobile, data, network, system admin, DevOps, cybersecurity, AI, machine learning, database, frontend, backend, fullstack, telecom tech. Otherwise false.
 
-For responsibilities: if not mentioned in job text, PREDICT 4 realistic ones based on the job title.
-isFreshGradOk = true if experience is 0, "entry level", "junior", "fresh graduate", or "1 year".
-isITJob = true only if this is software/IT/computer science/tech related.
+For responsibilities: if not mentioned in the job text, PREDICT 4 realistic ones based on the job title and description.
+
+IMPORTANT: Do NOT include experience, salary, education, or scoring. Just extract the core job info.
 `;
 
   const response = await axios.post(GROQ_URL, {
@@ -108,7 +90,7 @@ async function processAllJobs(rawJobs) {
       logger.dim(`  [Groq] Analyzing: "${job.title}" @ ${job.company}`);
       const processed = await processJobWithAI(job);
 
-      if (processed.isITJob && processed.isFreshGradOk) {
+      if (processed.isITJob) {
         results.push({
           ...processed,
           // Preserve pipeline-required fields
@@ -118,18 +100,10 @@ async function processAllJobs(rawJobs) {
           source    : job.source,
           published : job.published,
           applyEmail: job.applyEmail,
-          // Map AI scores to pipeline scores shape
-          scores: {
-            salary    : processed.score?.salary     ?? 1,
-            skills    : processed.score?.skills     ?? 1,
-            upgrade   : processed.score?.growth     ?? 1,
-            reputation: processed.score?.reputation ?? 0.5,
-            total     : processed.score?.total      ?? 5,
-          },
         });
-        logger.ok(`  [Groq] ✅ Qualified: "${processed.title}" (score: ${processed.score?.total}/10)`);
+        logger.ok(`  [Groq] ✅ Qualified: "${processed.title}"`);
       } else {
-        logger.dim(`  [Groq] ✗ Filtered: isIT=${processed.isITJob} freshOk=${processed.isFreshGradOk}`);
+        logger.dim(`  [Groq] ✗ Filtered: isIT=${processed.isITJob}`);
       }
 
       // 1.5s delay between calls (Groq free tier: 30 req/min)

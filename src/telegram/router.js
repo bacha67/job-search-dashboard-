@@ -11,10 +11,10 @@ function getTelegramUrl() {
   return `https://api.telegram.org/bot${token}`;
 }
 
-// Helper to escape HTML characters and default to 'Not specified'
+// Escape HTML special characters; returns null for missing/empty values
 function h(val) {
   if (val === null || val === undefined || String(val).trim() === '' || String(val).trim() === 'null') {
-    return 'Not specified';
+    return null;
   }
   return String(val)
     .replace(/&/g, '&amp;')
@@ -24,108 +24,65 @@ function h(val) {
 }
 
 function formatTelegramMessage(job) {
-  const company = h(job.company);
-  const title = h(job.title);
-  const location = h(job.location);
-  const deadline = h(job.deadline);
+  const company     = h(job.company);
+  const title       = h(job.title);
+  const location    = h(job.location);
+  const deadline    = h(job.deadline);
   const description = h(job.description);
 
-  // Responsibilities formatting (up to 4 items):
-  let respLines = '';
+  // ── Responsibilities (up to 4 items, skip section if none) ──────────────
+  let respBlock = '';
   if (Array.isArray(job.responsibilities) && job.responsibilities.length > 0) {
-    respLines = job.responsibilities.slice(0, 4).map(r => `- ${h(r)}`).join('\n');
+    const lines = job.responsibilities.slice(0, 4).map(r => `- ${h(r) || r}`).join('\n');
+    respBlock = `\n🎯 <b>Responsibilities:</b>\n${lines}\n`;
   } else if (typeof job.responsibilities === 'string' && job.responsibilities.trim().length > 0) {
-    const splitResps = job.responsibilities.split(/[.;\n]+/).map(s => s.trim()).filter(s => s.length > 0);
-    if (splitResps.length > 0) {
-      respLines = splitResps.slice(0, 4).map(r => `- ${h(r)}`).join('\n');
-    } else {
-      respLines = `- Not specified`;
-    }
-  } else {
-    respLines = `- Not specified`;
-  }
-
-  const education = h(job.education);
-
-  // Experience formatting:
-  let experienceText = '';
-  if (job.experience === null || job.experience === undefined || String(job.experience).trim() === '' || String(job.experience).trim() === 'Not specified') {
-    experienceText = 'Not specified';
-  } else {
-    const isFresh = job.isFreshGradOk === true || String(job.isFreshGradOk).toLowerCase() === 'true';
-    experienceText = `${h(job.experience)} years${isFresh ? ' ✅ Fresh Graduate OK!' : ''}`;
-  }
-
-  // Skills formatting:
-  let skillsStr = 'Not specified';
-  if (Array.isArray(job.requirements) && job.requirements.length > 0) {
-    skillsStr = job.requirements.map(r => h(r)).join(', ');
-  } else if (typeof job.requirements === 'string' && job.requirements.trim().length > 0) {
-    skillsStr = h(job.requirements);
-  }
-
-  const salary = h(job.salary);
-
-  // How to Apply formatting:
-  let applyInfo = 'Not specified';
-  const applyUrl = job.applyUrl || '';
-  const howToApply = job.howToApply || '';
-  const emailMatch = howToApply.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-
-  if (applyUrl && applyUrl.trim().startsWith('http')) {
-    applyInfo = `<a href="${h(applyUrl.trim())}">Click here to apply</a>`;
-  } else {
-    const hasAddress = /sub.?city|kebele|street|avenue|building|bldg|road|office|floor|in.?person/i.test(howToApply);
-    if (hasAddress) {
-      applyInfo = `${h(howToApply)}\nhttps://maps.google.com/?q=${encodeURIComponent(howToApply.trim())}+Ethiopia`;
-    } else if (emailMatch) {
-      applyInfo = h(emailMatch[0]);
-    } else if (howToApply.trim()) {
-      applyInfo = h(howToApply);
+    const parts = job.responsibilities.split(/[.;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
+    if (parts.length > 0) {
+      respBlock = `\n🎯 <b>Responsibilities:</b>\n${parts.map(r => `- ${h(r) || r}`).join('\n')}\n`;
     }
   }
 
-  // Score formatting:
-  const score = job.score || job.scores || {};
-  const totalScore = score.total !== null && score.total !== undefined ? score.total : 'Not specified';
-  const salaryScore = score.salary !== null && score.salary !== undefined ? score.salary : 'Not specified';
-  const skillsScore = score.skills !== null && score.skills !== undefined ? score.skills : 'Not specified';
-  const growthScore = score.growth !== null && score.growth !== undefined ? score.growth : 'Not specified';
-  const repScore = score.reputation !== null && score.reputation !== undefined ? score.reputation : 'Not specified';
-  const reasonScore = score.reason !== null && score.reason !== undefined ? h(score.reason) : 'Not specified';
+  // ── How to Apply ─────────────────────────────────────────────────────────
+  const rawApplyUrl   = (job.applyUrl   || '').trim();
+  const rawHowToApply = (job.howToApply || '').trim();
+  let applyBlock = '';
 
-  const source = h(job.source || 'EthioJobs');
-  const jobUrl = h(job.url || job.sourceUrl || '#');
+  if (rawApplyUrl.startsWith('http')) {
+    applyBlock = `<a href="${rawApplyUrl}">👉 Apply Here</a>`;
+  } else if (rawHowToApply) {
+    const isAddress = /sub.?city|kebele|street|avenue|building|bldg|road|office|floor|in.?person/i.test(rawHowToApply);
+    applyBlock = h(rawHowToApply) || rawHowToApply;
+    if (isAddress) {
+      applyBlock += `\nhttps://maps.google.com/?q=${encodeURIComponent(rawHowToApply)}+Ethiopia`;
+    }
+  } else {
+    applyBlock = 'Visit EthioJobs.net for details';
+  }
 
-  return `━━━━━━━━━━━━━━━━━━━━━
-🏢 <b>Company:</b> ${company}
-💼 <b>Position:</b> ${title}
-📍 <b>Location:</b> ${location}
-⏰ <b>Deadline:</b> ${deadline}
-━━━━━━━━━━━━━━━━━━━━━
+  // ── Header line: location | deadline (skip whichever is missing) ─────────
+  const locDeadlineParts = [location, deadline ? `⏰ ${deadline}` : null].filter(Boolean);
+  const locDeadlineLine  = locDeadlineParts.length ? `📍 ${locDeadlineParts.join(' | ')}` : '';
 
-📋 <b>About the Role:</b>
-${description}
+  const jobUrl = h(job.url || job.sourceUrl) || '#';
 
-🎯 <b>Your Responsibilities:</b>
-${respLines}
+  // ── Build message (skip optional lines when value is null) ───────────────
+  const lines = [
+    '━━━━━━━━━━━━━━━━━━━━━',
+    company  ? `🏢 <b>${company}</b>`  : null,
+    title    ? `💼 <b>${title}</b>`    : null,
+    locDeadlineLine || null,
+    '━━━━━━━━━━━━━━━━━━━━━',
+    '',
+    description ? `📋 <b>About the Role:</b>\n${description}` : null,
+    respBlock   ? respBlock.trim()                              : null,
+    '',
+    `🔗 <b>How to Apply:</b>\n${applyBlock}`,
+    '',
+    `📣 <a href="${jobUrl}">View Full Job Post</a> | @Ethio_Fresh_Jobs`,
+    '━━━━━━━━━━━━━━━━━━━━━',
+  ].filter(line => line !== null).join('\n');
 
-📌 <b>Requirements:</b>
-- 🎓 Education: ${education}
-- 💼 Experience: ${experienceText}
-- 🛠 Skills: ${skillsStr}
-
-💰 <b>Salary:</b> ${salary}
-
-🔗 <b>How to Apply:</b>
-${applyInfo}
-
-⭐ <b>Job Score: ${totalScore}/10</b>
-💰 Salary: ${salaryScore}/4 | 🛠 Skills: ${skillsScore}/3 | 📈 Growth: ${growthScore}/2 | 🏆 Rep: ${repScore}/1
-💡 ${reasonScore}
-
-📣 <b>Source:</b> ${source} | <a href="${jobUrl}">View Original</a>
-━━━━━━━━━━━━━━━━━━━━━`;
+  return lines;
 }
 
 async function sendJob(job, dryRun = false) {
@@ -211,4 +168,4 @@ async function sendAll(jobs, dryRun = false) {
   return sent;
 }
 
-module.exports = { sendAll, formatTelegramMessage };
+module.exports = { sendAll };
