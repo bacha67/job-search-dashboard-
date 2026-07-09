@@ -31,49 +31,36 @@ function formatTelegramMessage(job) {
   const description = h(job.description);
 
   // ── Responsibilities (up to 4 items, skip section if none) ──────────────
-  let respBlock = '';
+  let respBlock = null;
   if (Array.isArray(job.responsibilities) && job.responsibilities.length > 0) {
     const lines = job.responsibilities.slice(0, 4).map(r => `- ${h(r) || r}`).join('\n');
-    respBlock = `\n🎯 <b>Responsibilities:</b>\n${lines}\n`;
+    respBlock = `✅ <b>Key Responsibilities:</b>\n${lines}`;
   } else if (typeof job.responsibilities === 'string' && job.responsibilities.trim().length > 0) {
     const parts = job.responsibilities.split(/[.;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
     if (parts.length > 0) {
-      respBlock = `\n🎯 <b>Responsibilities:</b>\n${parts.map(r => `- ${h(r) || r}`).join('\n')}\n`;
+      respBlock = `✅ <b>Key Responsibilities:</b>\n${parts.map(r => `- ${h(r) || r}`).join('\n')}`;
     }
   }
 
   // ── How to Apply ─────────────────────────────────────────────────────────
   const rawApplyUrl   = (job.applyUrl   || '').trim();
   const rawHowToApply = (job.howToApply || '').trim();
-  let applyBlock = '';
+  const isAddress     = /sub.?city|kebele|street|avenue|building|bldg|road|office|floor|in.?person/i.test(rawHowToApply);
+
+  let applyLine      = null;
+  let directionsLine = null;
 
   if (rawApplyUrl.startsWith('http')) {
-    applyBlock = `<a href="${rawApplyUrl}">👉 Apply Here</a>`;
+    applyLine = `🔗 <b><a href="${rawApplyUrl}">👉 APPLY NOW</a></b>`;
   } else if (rawHowToApply) {
-    const isAddress = /sub.?city|kebele|street|avenue|building|bldg|road|office|floor|in.?person/i.test(rawHowToApply);
-    applyBlock = h(rawHowToApply) || rawHowToApply;
+    applyLine = `📨 <b>Apply via:</b> ${h(rawHowToApply) || rawHowToApply}`;
     if (isAddress) {
-      applyBlock += `\nhttps://maps.google.com/?q=${encodeURIComponent(rawHowToApply)}+Ethiopia`;
+      directionsLine = `🗺 <a href="https://maps.google.com/?q=${encodeURIComponent(rawHowToApply)}+Ethiopia">📍 Get Directions</a>`;
     }
-  } else {
-    applyBlock = 'Visit EthioJobs.net for details';
   }
-
-  // ── Header line: location | deadline (skip whichever is missing) ─────────
-  const locDeadlineParts = [location, deadline ? `⏰ ${deadline}` : null].filter(Boolean);
-  const locDeadlineLine  = locDeadlineParts.length ? `📍 ${locDeadlineParts.join(' | ')}` : '';
 
   const jobUrl = h(job.url || job.sourceUrl) || '#';
 
-  // ── Build message (skip optional lines when value is null) ───────────────
-  const lines = [
-    '━━━━━━━━━━━━━━━━━━━━━',
-    company  ? `🏢 <b>${company}</b>`  : null,
-    title    ? `💼 <b>${title}</b>`    : null,
-    locDeadlineLine || null,
-    '━━━━━━━━━━━━━━━━━━━━━',
-    '',
-    description ? `📋 <b>About the Role:</b>\n${description}` : null,
     respBlock   ? respBlock.trim()                              : null,
     '',
     `🔗 <b>How to Apply:</b>\n${applyBlock}`,
