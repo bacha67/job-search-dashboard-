@@ -18,12 +18,12 @@ jobs:
     timeout-minutes: 30       # Kill if hangs (free runner limit is 6h, we use 30min max)
 
     steps:
-      # 1. Checkout full repo
+      # 1. Checkout full repo (full depth so rebase always has history)
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 1
+          fetch-depth: 0
 
       # 2. Set up Node.js 20 with npm cache
       - name: Setup Node.js
@@ -40,8 +40,8 @@ jobs:
       - name: Create .env
         run: |
           echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
-          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> .env
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"     >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"         >> .env
           echo "REQUEST_TIMEOUT_MS=15000"  >> .env
           echo "REQUEST_DELAY_MS=2000"     >> .env
           echo "MAX_JOBS_PER_PORTAL=50"    >> .env
@@ -51,13 +51,16 @@ jobs:
         run: node src/scheduler.js --once
 
       # 6. Commit updated jobs.json back to the repo
-      #    GitHub Pages will auto-serve the new data within ~30 seconds
+      #    Pull --rebase first to avoid rejection if another run pushed while we ran
       - name: Commit and push updated jobs data
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name  "github-actions[bot]"
           git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json
-          # Only commit if there are actual changes
-          git diff --staged --quiet && echo "No new jobs — nothing to commit" || \
-          git commit -m "data: auto-update jobs.json [skip ci]"
-          git push
+          if git diff --staged --quiet; then
+            echo "No new jobs — nothing to commit"
+          else
+            git commit -m "data: auto-update jobs.json [skip ci]"
+            git pull --rebase origin main
+            git push origin main
+          fi
