@@ -40,7 +40,7 @@ function pushDataToGitHub(newJobCount) {
         { cwd: process.cwd(), stdio: 'pipe' }
       );
     }
-    execSync('git add docs/data/jobs.json data/jobs.json dashboard/public/data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
+    execSync('git add docs/data/jobs.json data/jobs.json', { cwd: process.cwd(), stdio: 'pipe' });
     execSync(`git commit -m "data: update jobs.json — ${newJobCount} new job(s) [skip ci]"`, { cwd: process.cwd(), stdio: 'pipe' });
     execSync('git push origin main', { cwd: process.cwd(), stdio: 'pipe' });
     logger.ok(`[GitHub] Pushed jobs.json (${newJobCount} new) → dashboard updates in ~30s`);

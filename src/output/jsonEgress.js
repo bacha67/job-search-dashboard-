@@ -12,9 +12,7 @@ const logger = require('../utils/logger');
 
 const DATA_DIR    = path.join(process.cwd(), 'data');
 const JSON_FILE   = path.join(DATA_DIR, 'jobs.json');
-// Mirror: Next.js public folder (Vercel hosting)
-const PUBLIC_COPY = path.join(process.cwd(), 'dashboard', 'public', 'data', 'jobs.json');
-// Mirror: GitHub Pages docs folder
+// Mirror: GitHub Pages docs folder (served via GitHub Pages)
 const DOCS_COPY   = path.join(process.cwd(), 'docs', 'data', 'jobs.json');
 const MAX_STORED  = 500; // keep last 500 jobs to prevent unbounded growth
 
@@ -123,9 +121,6 @@ function persist(jobs) {
 
   // Primary data file
   fs.writeFileSync(JSON_FILE, payload, 'utf8');
-
-  // Mirror → dashboard/public/data/jobs.json  (Vercel static asset)
-  _mirrorWrite(PUBLIC_COPY, payload);
 
   // Mirror → docs/data/jobs.json  (GitHub Pages)
   _mirrorWrite(DOCS_COPY, payload);

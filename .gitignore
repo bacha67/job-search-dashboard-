@@ -1,5 +1,11 @@
+# Environment
 .env
+
+# Dependencies
 node_modules/
+
+# Runtime artifacts — never commit these
+*.log
+*.pid
 *.sqlite
 *.db
-logs/
