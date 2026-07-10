@@ -1,5 +1,61 @@
 [
   {
+    "job_id": "d6e76dafad53",
+    "title": "Learning & Development Coordinator I",
+    "company": "Capital Finance Excellence Center (CaFEC) Share Company",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/eu9W71kNOV-learning-development-coordinator-i",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-10T19:46:28.628Z"
+  },
+  {
+    "job_id": "50643521b1fa",
+    "title": "Development Officer",
+    "company": "TotalEnergies Marketing Ethiopia S.C.",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/l6T0ePPDuT-development-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-10T19:46:26.332Z"
+  },
+  {
     "job_id": "ecdf1b64f368",
     "title": "Junior Data Analyst",
     "company": "Ovid Real Estate",
