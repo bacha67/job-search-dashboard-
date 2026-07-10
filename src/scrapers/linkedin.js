@@ -18,10 +18,20 @@ const SOURCE_NAME = 'LinkedIn';
 // Guest API — returns HTML job card fragments (no auth needed)
 // f_E=1,2 → Internship + Entry Level   |  f_TPR=r86400 → last 24h
 const SEARCH_QUERIES = [
-  { keywords: 'software+developer', label: 'Software Dev' },
-  { keywords: 'IT+officer',         label: 'IT Officer'   },
-  { keywords: 'web+developer',      label: 'Web Dev'      },
-  { keywords: 'data+analyst',       label: 'Data Analyst' },
+  // ── Tech roles (existing) ──────────────────────────────────────
+  { keywords: 'software+developer',   label: 'Software Dev'  },
+  { keywords: 'IT+officer',           label: 'IT Officer'    },
+  { keywords: 'web+developer',        label: 'Web Dev'       },
+  { keywords: 'data+analyst',         label: 'Data Analyst'  },
+  // ── Mathematics-related roles (new) ───────────────────────────
+  { keywords: 'statistician',         label: 'Statistician'  },
+  { keywords: 'actuary',              label: 'Actuary'       },
+  { keywords: 'quantitative+analyst', label: 'Quant Analyst' },
+  { keywords: 'mathematics+teacher',  label: 'Math Teacher'  },
+  { keywords: 'research+analyst',     label: 'Research Analyst' },
+  { keywords: 'financial+analyst',    label: 'Financial Analyst' },
+  { keywords: 'business+analyst',     label: 'Business Analyst'  },
+  { keywords: 'data+scientist',       label: 'Data Scientist' },
 ];
 
 const LOCATION    = 'Ethiopia';

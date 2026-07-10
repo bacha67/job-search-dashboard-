@@ -21,7 +21,7 @@ async function processJobWithAI(rawJob) {
     .replace(/\s+/g, ' ').trim().slice(0, MAX_RAW_TEXT);
 
   const prompt = `
-You are an Ethiopian job assistant. Analyze this job posting and return ONLY a valid JSON object, no markdown, no explanation, no backticks.
+You are an Ethiopian job assistant helping fresh CS/IT graduates and BSc Mathematics graduates find jobs. Analyze this job posting and return ONLY a valid JSON object, no markdown, no explanation, no backticks.
 
 JOB DATA:
 Title: ${rawJob.title}
@@ -37,6 +37,7 @@ Return exactly this JSON structure:
   "location": "city, Ethiopia",
   "deadline": "deadline date or Not specified",
   "isITJob": true or false,
+  "isMathJob": true or false,
   "description": "2-3 sentence summary of what this job is about",
   "responsibilities": ["responsibility 1", "responsibility 2", "responsibility 3", "responsibility 4"],
   "applyUrl": "direct application URL or null",
@@ -45,6 +46,7 @@ Return exactly this JSON structure:
 }
 
 isITJob = true if job is related to: software, IT, computer science, programming, web, mobile, data, network, system admin, DevOps, cybersecurity, AI, machine learning, database, frontend, backend, fullstack, telecom tech. Otherwise false.
+isMathJob = true if job is related to: mathematics, statistics, actuarial science, quantitative analysis, operations research, data science, financial analysis, economics, econometrics, biometrics, or any analytical/mathematical field a BSc Mathematics graduate could apply to. Otherwise false.
 
 For responsibilities: if not mentioned in the job text, PREDICT 4 realistic ones based on the job title and description.
 
@@ -90,7 +92,8 @@ async function processAllJobs(rawJobs) {
       logger.dim(`  [Groq] Analyzing: "${job.title}" @ ${job.company}`);
       const processed = await processJobWithAI(job);
 
-      if (processed.isITJob) {
+      // Accept both IT jobs AND mathematics/statistics jobs
+      if (processed.isITJob || processed.isMathJob) {
         results.push({
           ...processed,
           // Preserve pipeline-required fields
@@ -101,9 +104,10 @@ async function processAllJobs(rawJobs) {
           published : job.published,
           applyEmail: job.applyEmail,
         });
-        logger.ok(`  [Groq] ✅ Qualified: "${processed.title}"`);
+        const tag = processed.isMathJob && !processed.isITJob ? '📐 Math' : '💻 IT';
+        logger.ok(`  [Groq] ✅ Qualified [${tag}]: "${processed.title}"`);
       } else {
-        logger.dim(`  [Groq] ✗ Filtered: isIT=${processed.isITJob}`);
+        logger.dim(`  [Groq] ✗ Filtered: isIT=${processed.isITJob} isMath=${processed.isMathJob}`);
       }
 
       // 1.5s delay between calls (Groq free tier: 30 req/min)

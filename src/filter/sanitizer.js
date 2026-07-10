@@ -38,7 +38,38 @@ const EXP_HARD_PATTERNS = [
 ];
 
 // ══════════════════════════════════════════════════════════════════════════
-// GATE 1: TECH FIELD VALIDATION — STRICT (CS/IT/SE/CE/Sysadmin/MIS only)
+// GATE 1A: MATHEMATICS FIELD VALIDATION
+// For BSc Mathematics graduates: actuary, statistician, quant analyst,
+// operations researcher, math lecturer/instructor, data analyst (math focus), etc.
+// ══════════════════════════════════════════════════════════════════════════
+
+const MATH_TITLE_KEYWORDS = [
+  // Core math/stats roles
+  'actuar', 'statistician', 'statistic', 'statistical',
+  'quantitative analyst', 'quantitative researcher', 'quant analyst',
+  'operations researcher', 'operations research', 'operational research',
+  'mathematician', 'mathematics', 'mathematical',
+  // Data roles that skew math (kept specific to avoid general marketing overlap)
+  'data analyst', 'data scientist', 'data engineer',
+  'business analyst', 'research analyst', 'financial analyst',
+  'risk analyst', 'risk modell', 'credit analyst', 'portfolio analyst',
+  'pricing analyst', 'fraud analyst',
+  // Teaching / academic
+  'math instructor', 'math teacher', 'math lecturer', 'math tutor',
+  'mathematics instructor', 'mathematics teacher', 'mathematics lecturer',
+  'mathematics tutor', 'maths teacher', 'maths instructor', 'maths lecturer',
+  // Fintech / banking quant roles
+  'treasury analyst', 'economic analyst', 'economist',
+  'financial modell', 'model validator', 'model validation',
+  // Survey / census / research
+  'survey analyst', 'survey statistician', 'census analyst',
+  'biometrician', 'epidemiologist',
+  // GIS / mapping (also in tech list but repeated for clarity)
+  'geostatistic',
+];
+
+// ══════════════════════════════════════════════════════════════════════════
+// GATE 1B: TECH FIELD VALIDATION — STRICT (CS/IT/SE/CE/Sysadmin/MIS only)
 // ══════════════════════════════════════════════════════════════════════════
 
 // These keywords must appear in the JOB TITLE to qualify
@@ -163,8 +194,19 @@ function isHardRejected(job) {
 }
 
 /**
- * GATE 1: Tech field check — title must match a specific tech keyword.
- * Non-tech title patterns are always rejected.
+ * GATE 1A: Mathematics field check — title contains a math/stats keyword.
+ * Allows BSc Mathematics graduates' relevant roles through the field gate.
+ */
+function isMathField(job) {
+  const title = (job.title || '').toLowerCase();
+  return MATH_TITLE_KEYWORDS.some(kw => title.includes(kw));
+}
+
+/**
+ * GATE 1: Tech OR Math field check.
+ * Passes if the job title matches a tech keyword (CS/IT/SE/CE/Sysadmin/MIS)
+ * OR a mathematics/statistics keyword (actuary, statistician, quant, etc.).
+ * Non-tech title patterns are always rejected regardless.
  */
 function isTechField(job) {
   const title = (job.title || '').toLowerCase();
@@ -172,6 +214,10 @@ function isTechField(job) {
   // Always reject explicitly non-tech titles
   if (NON_TECH_TITLE_REJECT.some(rx => rx.test(title))) return false;
 
+  // ── Gate 1A: Mathematics / statistics roles ───────────────────────────
+  if (isMathField(job)) return true;
+
+  // ── Gate 1B: IT / CS / SE / CE / Sysadmin / MIS roles ────────────────
   // Must match a specific tech keyword in title (with word boundary protection for short acronyms)
   if (TECH_TITLE_KEYWORDS.some(kw => {
     if (/^(it|ict|mis|gis)\b/.test(kw)) {
@@ -324,4 +370,4 @@ function sanitize(jobs) {
   return results;
 }
 
-module.exports = { sanitize, isTechField };
+module.exports = { sanitize, isTechField, isMathField };

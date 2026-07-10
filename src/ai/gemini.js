@@ -26,7 +26,7 @@ async function processJobWithAI(rawJob) {
     .slice(0, MAX_RAW_TEXT_CHARS);
 
   const prompt = `
-You are an Ethiopian job assistant helping fresh CS/IT graduates find jobs.
+You are an Ethiopian job assistant helping fresh CS/IT graduates and BSc Mathematics graduates find jobs.
 
 Analyze this job posting and return a JSON object only (no markdown, no explanation):
 
@@ -47,6 +47,7 @@ Return this exact JSON structure:
   "experience": "years required - write 0 if fresh graduate or not mentioned",
   "isFreshGradOk": true or false,
   "isITJob": true or false,
+  "isMathJob": true or false,
   "salary": "amount in ETB or Not disclosed",
   "description": "2-3 sentence summary of what this job is about",
   "responsibilities": ["responsibility 1", "responsibility 2", "responsibility 3", "responsibility 4"],
@@ -66,13 +67,14 @@ Return this exact JSON structure:
 
 Scoring rules:
 - salary: 4=above 15000ETB mentioned, 2=8000-15000ETB, 1=not mentioned
-- skills: 3=teaches React/Node/Python/AI/cloud, 2=general IT, 1=basic admin
+- skills: 3=teaches React/Node/Python/AI/cloud/statistics/data modelling, 2=general IT or quantitative role, 1=basic admin
 - growth: 2=large/known company, 1=mid company, 0.5=unknown
 - reputation: 1=well known Ethiopian or international company, 0.5=unknown
 
 For responsibilities: if not mentioned in the job text, PREDICT realistic ones based on the job title.
 For isFreshGradOk: true if experience is 0, 1 year, entry level, junior, or fresh graduate.
 For isITJob: true only if this is a software/IT/computer science/tech related job.
+For isMathJob: true if this is a mathematics, statistics, actuarial, quantitative analysis, operations research, data science, financial analysis, economics, or similar analytical/mathematical field job that a BSc Mathematics graduate could apply to.
 `;
 
   const response = await axios.post(GEMINI_URL, {
@@ -109,7 +111,8 @@ async function processAllJobs(rawJobs) {
       logger.dim(`  [Gemini] Analyzing: "${job.title}" @ ${job.company}`);
       const processed = await processJobWithAI(job);
 
-      if (processed.isITJob && processed.isFreshGradOk) {
+      // Accept both IT jobs AND mathematics/statistics jobs
+      if ((processed.isITJob || processed.isMathJob) && processed.isFreshGradOk) {
         results.push({
           ...processed,
           // Preserve pipeline-required fields
@@ -132,9 +135,10 @@ async function processAllJobs(rawJobs) {
             (processed.responsibilities || []).slice(0, 2).join('. '),
           ],
         });
-        logger.ok(`  [Gemini] ✅ Qualified: "${processed.title}" (score: ${processed.score?.total}/10)`);
+        const tag = processed.isMathJob && !processed.isITJob ? '📐 Math' : '💻 IT';
+        logger.ok(`  [Gemini] ✅ Qualified [${tag}]: "${processed.title}" (score: ${processed.score?.total}/10)`);
       } else {
-        logger.dim(`  [Gemini] ✗ Filtered out: isIT=${processed.isITJob} freshOk=${processed.isFreshGradOk}`);
+        logger.dim(`  [Gemini] ✗ Filtered out: isIT=${processed.isITJob} isMath=${processed.isMathJob} freshOk=${processed.isFreshGradOk}`);
       }
 
       // 1 second delay between Gemini API calls (rate limit: 15 req/min on free tier)

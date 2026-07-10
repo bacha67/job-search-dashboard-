@@ -25,6 +25,11 @@ const CATEGORY_URLS = [
   `${BASE_URL}/jobs?category=Computer+Science`,
   `${BASE_URL}/jobs?category=Engineering`,
   `${BASE_URL}/jobs?category=Telecommunication`,
+  // Mathematics-related categories — for BSc Mathematics graduates
+  `${BASE_URL}/jobs?category=Mathematics`,
+  `${BASE_URL}/jobs?category=Statistics`,
+  `${BASE_URL}/jobs?category=Research`,
+  `${BASE_URL}/jobs?category=Economics`,
 ];
 
 const HEADERS = {
