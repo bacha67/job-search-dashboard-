@@ -33,12 +33,12 @@ function formatTelegramMessage(job) {
   // ── Responsibilities (up to 4 items, skip section if none) ──────────────
   let respBlock = null;
   if (Array.isArray(job.responsibilities) && job.responsibilities.length > 0) {
-    const lines = job.responsibilities.slice(0, 4).map(r => `- ${h(r) || r}`).join('\n');
-    respBlock = `✅ <b>Key Responsibilities:</b>\n${lines}`;
+    const items = job.responsibilities.slice(0, 4).map(r => `▪️ ${h(r) || r}`).join('\n');
+    respBlock = `✅ <b>ዋና ሃላፊነቶች | Responsibilities:</b>\n${items}`;
   } else if (typeof job.responsibilities === 'string' && job.responsibilities.trim().length > 0) {
     const parts = job.responsibilities.split(/[.;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
     if (parts.length > 0) {
-      respBlock = `✅ <b>Key Responsibilities:</b>\n${parts.map(r => `- ${h(r) || r}`).join('\n')}`;
+      respBlock = `✅ <b>ዋና ሃላፊነቶች | Responsibilities:</b>\n${parts.map(r => `▪️ ${h(r) || r}`).join('\n')}`;
     }
   }
 
@@ -51,39 +51,41 @@ function formatTelegramMessage(job) {
   let directionsLine = null;
 
   if (rawApplyUrl.startsWith('http')) {
-    applyLine = `🔗 <b><a href="${rawApplyUrl}">👉 APPLY NOW</a></b>`;
+    applyLine = `🔗 <b><a href="${rawApplyUrl}">👉 Apply Here / ለማመልከት ይጫኑ</a></b>`;
   } else if (rawHowToApply) {
     applyLine = `📨 <b>Apply via:</b> ${h(rawHowToApply) || rawHowToApply}`;
     if (isAddress) {
-      directionsLine = `🗺 <a href="https://maps.google.com/?q=${encodeURIComponent(rawHowToApply)}+Ethiopia">📍 Get Directions</a>`;
+      directionsLine = `🗺 <a href="https://maps.google.com/?q=${encodeURIComponent(rawHowToApply)}+Ethiopia">Get Directions</a>`;
     }
   }
 
   const jobUrl = h(job.url || job.sourceUrl) || '#';
 
   // ── Build message — null entries are filtered out ──────────────────────────
-  const DIVIDER = '─────────────────────';
+  const DIVIDER = '━━━━━━━━━━━━━━━━━━━━━';
 
   const parts = [
-    '🚀 <b>New Job Alert!</b>',
-    '',
-    company  ? `🏢 <b>${company}</b>`        : null,
-    title    ? `💼 ${title}`                 : null,
-    location ? `📍 ${location}`              : null,
-    deadline ? `⏰ Deadline: ${deadline}`    : null,
+    '⚡️ <b> Tech Job Alert</b>',
     '',
     DIVIDER,
-    description ? `📋 <b>What You\'ll Do:</b>\n${description}` : null,
+    company  ? `🏢 <b>${company}</b>`       : null,
+    title    ? `💼 <b>${title}</b>`          : null,
+    location ? `📍 ${location}`              : null,
+    deadline ? `⏰ Deadline: ${deadline}`    : null,
+    DIVIDER,
+    '',
+    description ? `📋 <b>ስለ ስራው | About the Role:</b>\n${description}` : null,
     '',
     respBlock,
     '',
     DIVIDER,
     applyLine,
     directionsLine,
-    '',
+    `🌐 <a href="${jobUrl}">View Full Post | ሙሉ ማስታወቂያ</a>`,
     DIVIDER,
-    `🌐 <a href="${jobUrl}">View Full Post on EthioJobs</a>`,
-    '📢 Follow <b>@Ethio_Fresh_Jobs</b> for daily job updates!',
+    '',
+    '📢 ለተጨማሪ የሥራ ዕድሎች ቻናሉን ይቀላቀሉ!',
+    '👇 <b><a href="https://t.me/Ethio_Fresh_Jobs">@Ethio_Fresh_Jobs</a></b>',
   ];
 
   return parts
