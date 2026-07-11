@@ -8,14 +8,16 @@ const { execSync } = require('child_process');
 const logger       = require('./utils/logger');
 
 // ── Imports ──────────────────────────────────────────────────────────────────
-const { ingestAll }      = require('./ingestion');          // all 7 scrapers in parallel
-const { scrapeEthioJobs} = require('./scrapers/ethiojobs'); // Ethiojobs only (alias)
-const { sanitize }       = require('./filter/sanitizer');   // fast keyword pre-filter
-const { scoreAll }       = require('./scoring/engine');      // heuristic fallback scorer
-const { processAllJobs } = require('./ai/groq');          // Groq AI stage (LLaMA 3.3 70B)
-const { sendAll }        = require('./telegram/router');     // Telegram sender
-const { writeJobsJson }  = require('./output/jsonEgress');  // dashboard JSON writer
-const { totalSeen }      = require('./db/store');
+const { ingestAll }              = require('./ingestion');                    // all 7 scrapers in parallel
+const { scrapeEthioJobs }        = require('./scrapers/ethiojobs');          // Ethiojobs only (alias)
+const { scrapeTelegramChannels } = require('./scrapers/telegramChannels');   // public Telegram channel posts
+const { scrapeRSSFeeds }         = require('./scrapers/rssFeed');             // sitemap/RSS feeds
+const { sanitize }               = require('./filter/sanitizer');             // fast keyword pre-filter
+const { scoreAll }               = require('./scoring/engine');               // heuristic fallback scorer
+const { processAllJobs }         = require('./ai/groq');                     // Groq AI stage (LLaMA 3.3 70B)
+const { sendAll }                = require('./telegram/router');              // Telegram sender
+const { writeJobsJson }          = require('./output/jsonEgress');            // dashboard JSON writer
+const { totalSeen }              = require('./db/store');
 
 // ── CLI flags ─────────────────────────────────────────────────────────────────
 const args     = process.argv.slice(2);
@@ -62,14 +64,44 @@ async function runPipeline() {
 
   try {
     // ── Step 1: Scrape ────────────────────────────────────────────────────
-    // Default: all 7 scrapers in parallel (ETcareers + Kebenajob + Jiji etc.
-    // contribute 40+ extra jobs per run beyond Ethiojobs alone).
-    // Use --ethio-only flag or ETHIO_ONLY=true env to restrict to Ethiojobs only.
-    const rawJobs = ETHIO_ONLY
-      ? await scrapeEthioJobs()
-      : await ingestAll();
+    // --ethio-only: single scraper for quick tests.
+    // Default: ingestAll() (7 legacy scrapers) + Telegram channels + RSS feeds
+    // all run concurrently; results are merged and deduplicated by URL.
+    let rawJobs;
 
-    logger.ok(`Step 1 complete — ${rawJobs.length} raw jobs scraped`);
+    if (ETHIO_ONLY) {
+      rawJobs = await scrapeEthioJobs();
+      logger.ok(`Step 1 complete — ${rawJobs.length} raw jobs scraped (ethio-only mode)`);
+    } else {
+      logger.step('🕷️', 'Step 1: Scraping all sources…');
+      const [ingestResult, telegramResult, rssResult] = await Promise.allSettled([
+        ingestAll(),
+        scrapeTelegramChannels(),
+        scrapeRSSFeeds(),
+      ]);
+
+      const ingestJobs   = ingestResult.status   === 'fulfilled' ? ingestResult.value   : [];
+      const telegramJobs = telegramResult.status  === 'fulfilled' ? telegramResult.value  : [];
+      const rssJobs      = rssResult.status       === 'fulfilled' ? rssResult.value       : [];
+
+      if (ingestResult.status   === 'rejected') logger.warn(`[Scheduler] ingestAll failed: ${ingestResult.reason?.message}`);
+      if (telegramResult.status === 'rejected') logger.warn(`[Scheduler] Telegram scraper failed: ${telegramResult.reason?.message}`);
+      if (rssResult.status      === 'rejected') logger.warn(`[Scheduler] RSS scraper failed: ${rssResult.reason?.message}`);
+
+      // Deduplicate merged results by URL
+      const seen       = new Set();
+      rawJobs = [...ingestJobs, ...telegramJobs, ...rssJobs].filter(job => {
+        if (!job.url || seen.has(job.url)) return false;
+        seen.add(job.url);
+        return true;
+      });
+
+      logger.ok(`📦 Total unique raw jobs: ${rawJobs.length}`);
+      logger.dim(`   Legacy scrapers : ${ingestJobs.length}`);
+      logger.dim(`   Telegram posts  : ${telegramJobs.length}`);
+      logger.dim(`   RSS/Sitemap     : ${rssJobs.length}`);
+      logger.ok(`Step 1 complete — ${rawJobs.length} unique raw jobs scraped`);
+    }
 
     if (rawJobs.length === 0) {
       logger.info('No jobs scraped this cycle.');
