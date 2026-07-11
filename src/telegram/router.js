@@ -42,6 +42,22 @@ function formatTelegramMessage(job) {
     }
   }
 
+  // ── Requirements (up to 4 items, skip section if none) ───────────────────
+  let reqBlock = null;
+  if (Array.isArray(job.requirements) && job.requirements.length > 0) {
+    const items = job.requirements.slice(0, 4)
+      .map(r => h(r))
+      .filter(Boolean)
+      .map(r => `▪️ ${r}`)
+      .join('\n');
+    if (items) reqBlock = `📌 <b>መስፈርቶች | Requirements:</b>\n${items}`;
+  } else if (typeof job.requirements === 'string' && job.requirements.trim().length > 0) {
+    const parts = job.requirements.split(/[.;\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
+    if (parts.length > 0) {
+      reqBlock = `📌 <b>መስፈርቶች | Requirements:</b>\n${parts.map(r => `▪️ ${h(r) || r}`).join('\n')}`;
+    }
+  }
+
   // ── How to Apply ─────────────────────────────────────────────────────────
   const rawApplyUrl   = (job.applyUrl   || '').trim();
   const rawHowToApply = (job.howToApply || '').trim();
@@ -65,7 +81,7 @@ function formatTelegramMessage(job) {
   const DIVIDER = '━━━━━━━━━━━━━━━━━━━━━';
 
   const parts = [
-    '⚡️ <b> Tech Job Alert</b>',
+    '⚡️ <b>የሥራ ዕድል | Job Alert</b>',
     '',
     DIVIDER,
     company  ? `🏢 <b>${company}</b>`       : null,
@@ -77,6 +93,8 @@ function formatTelegramMessage(job) {
     description ? `📋 <b>ስለ ስራው | About the Role:</b>\n${description}` : null,
     '',
     respBlock,
+    '',
+    reqBlock,
     '',
     DIVIDER,
     applyLine,
