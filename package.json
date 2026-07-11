@@ -13,6 +13,7 @@
     "better-sqlite3": "^9.6.0",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
+    "fast-xml-parser": "^5.10.0",
     "node-cron": "^3.0.3",
     "node-html-parser": "^6.1.13",
     "node-telegram-bot-api": "^0.66.0"
