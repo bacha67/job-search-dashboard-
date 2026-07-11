@@ -19,12 +19,34 @@ const { isTechField } = require('../filter/sanitizer');
 const SOURCE_NAME = 'EthioJobs';
 const BASE_URL    = 'https://ethiojobs.net';
 const DELAY_MS    = 1500; // 1.5s between detail page fetches
+const RETRY_COUNT = 2;    // max retries per failed request
+const RETRY_DELAY = 3000; // 3s back-off between retries
+
+// ─── User-Agent rotation (reduces blocking risk) ──────────────────────────────
+const USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+];
+
+function getHeaders() {
+  return {
+    'User-Agent'     : USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)],
+    'Accept'         : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Cache-Control'  : 'no-cache',
+  };
+}
+
+// ─── URL lists ────────────────────────────────────────────────────────────────
 
 const CATEGORY_URLS = [
   `${BASE_URL}/jobs?category=Information+Technology`,
   `${BASE_URL}/jobs?category=Computer+Science`,
   `${BASE_URL}/jobs?category=Engineering`,
   `${BASE_URL}/jobs?category=Telecommunication`,
+  `${BASE_URL}/jobs?category=Management+Information+Systems`,
+  `${BASE_URL}/jobs?category=Electronics`,
   // Mathematics-related categories — for BSc Mathematics graduates
   `${BASE_URL}/jobs?category=Mathematics`,
   `${BASE_URL}/jobs?category=Statistics`,
@@ -32,12 +54,14 @@ const CATEGORY_URLS = [
   `${BASE_URL}/jobs?category=Economics`,
 ];
 
-const HEADERS = {
-  'User-Agent'     : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept'         : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en-US,en;q=0.9',
-  'Cache-Control'  : 'no-cache',
-};
+const KEYWORD_URLS = [
+  `${BASE_URL}/jobs?q=software+developer`,
+  `${BASE_URL}/jobs?q=IT+officer`,
+  `${BASE_URL}/jobs?q=system+administrator`,
+  `${BASE_URL}/jobs?q=web+developer`,
+  `${BASE_URL}/jobs?q=data+analyst`,
+  `${BASE_URL}/jobs?q=network+engineer`,
+];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -52,8 +76,20 @@ function stripHtml(html) {
 }
 
 async function fetchHtml(url) {
-  const resp = await axios.get(url, { headers: HEADERS, timeout: 25000 });
-  return resp.data;
+  let lastErr;
+  for (let attempt = 0; attempt <= RETRY_COUNT; attempt++) {
+    try {
+      const resp = await axios.get(url, { headers: getHeaders(), timeout: 25000 });
+      return resp.data;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < RETRY_COUNT) {
+        logger.warn(`[Ethiojobs] Attempt ${attempt + 1} failed for ${url} — retrying in ${RETRY_DELAY / 1000}s…`);
+        await delay(RETRY_DELAY);
+      }
+    }
+  }
+  throw lastErr;
 }
 
 function parseNextData(html) {
@@ -229,29 +265,32 @@ async function scrapeCategory(categoryUrl) {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function scrapeEthioJobs() {
-  logger.step('🌐', `Scraping ${SOURCE_NAME} (${CATEGORY_URLS.length} categories)...`);
+  const totalUrls = CATEGORY_URLS.length + KEYWORD_URLS.length;
+  logger.step('🌐', `Scraping ${SOURCE_NAME} (${CATEGORY_URLS.length} categories + ${KEYWORD_URLS.length} keyword searches)...`);
 
-  // Step 1: Collect all unique slugs
+  // Step 1: Collect unique slugs from all category + keyword listing pages
   const allSlugs = new Set();
-  for (const catUrl of CATEGORY_URLS) {
-    const slugs = await scrapeCategory(catUrl);
+
+  for (const url of [...CATEGORY_URLS, ...KEYWORD_URLS]) {
+    const slugs = await scrapeCategory(url);
     slugs.forEach(s => allSlugs.add(s));
   }
 
   const slugList = [...allSlugs];
-  logger.ok(`[Ethiojobs] ${slugList.length} unique slugs found — filtering out already seen/processed...`);
+  logger.ok(`[Ethiojobs] ${slugList.length} unique slugs found across ${totalUrls} listing pages — filtering already seen…`);
 
-  // Pre-filter slugList to skip already seen ones before fetching details
+  // Pre-filter: skip slugs whose canonical URL has already been processed
+  const seenUrls = new Set();
   const newSlugs = [];
   for (const slug of slugList) {
     const url = `${BASE_URL}/jobs/${slug}`;
+    if (seenUrls.has(url)) continue;   // dedup by canonical URL
+    seenUrls.add(url);
     const id = makeId(url);
-    if (!hasSeen(id)) {
-      newSlugs.push(slug);
-    }
+    if (!hasSeen(id)) newSlugs.push(slug);
   }
 
-  logger.ok(`[Ethiojobs] ${newSlugs.length}/${slugList.length} slugs are new — fetching detail pages...`);
+  logger.ok(`[Ethiojobs] ${newSlugs.length}/${slugList.length} slugs are new — fetching detail pages…`);
 
   const maxJobs = parseInt(process.env.MAX_JOBS_PER_PORTAL || '50', 10);
 
