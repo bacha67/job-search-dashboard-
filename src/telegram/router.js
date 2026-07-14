@@ -29,6 +29,8 @@ function formatTelegramMessage(job) {
   const location    = h(job.location);
   const deadline    = h(job.deadline);
   const description = h(job.description);
+  const education   = h(job.education);
+  const experience  = h(job.experience);
 
   // ── Responsibilities (up to 4 items, skip section if none) ──────────────
   let respBlock = null;
@@ -80,14 +82,23 @@ function formatTelegramMessage(job) {
   // ── Build message — null entries are filtered out ──────────────────────────
   const DIVIDER = '━━━━━━━━━━━━━━━━━━━━━';
 
+  // ── Degree & Experience line ─────────────────────────────────────────────
+  let degExpLine = null;
+  if (education || experience) {
+    const degPart = education ? `🎓 <b>Degree:</b> ${education}` : null;
+    const expPart = experience ? `📅 <b>Experience:</b> ${experience}` : null;
+    degExpLine = [degPart, expPart].filter(Boolean).join('   |   ');
+  }
+
   const parts = [
     '⚡️ <b>የሥራ ዕድል | Job Alert</b>',
     '',
     DIVIDER,
-    company  ? `🏢 <b>${company}</b>`       : null,
-    title    ? `💼 <b>${title}</b>`          : null,
-    location ? `📍 ${location}`              : null,
-    deadline ? `⏰ Deadline: ${deadline}`    : null,
+    company    ? `🏢 <b>${company}</b>`       : null,
+    title      ? `💼 <b>${title}</b>`          : null,
+    location   ? `📍 ${location}`              : null,
+    degExpLine,
+    deadline   ? `⏰ Deadline: ${deadline}`    : null,
     DIVIDER,
     '',
     description ? `📋 <b>ስለ ስራው | About the Role:</b>\n${description}` : null,

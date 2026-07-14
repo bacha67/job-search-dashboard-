@@ -76,6 +76,8 @@ function buildJobJson(job) {
     location        : job.location || 'Ethiopia',
     career_level    : job.careerLevel || 'Entry Level',
     job_type        : job.workExpName || '',
+    degree_required : job.education   || '',
+    experience      : job.experience  || '',
     is_top_rated    : isTop,
     metrics         : {
       salary          : parseFloat(salary.toFixed(1)),
