@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "26140eb66b3a",
+    "title": "Business Development and Strategy Expert",
+    "company": "GIZ Sequa gGmbH",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/vGltqk8Tj6-business-development-and-strategy-expert",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-15T14:02:43.496Z"
+  },
+  {
+    "job_id": "70b09de704ef",
+    "title": "Jeans/Denim Pattern & Sample Developer",
+    "company": "Realistic Manufacturing PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/r9FcLhlKyM-jeansdenim-pattern-sample-developer",
+    "location": "Hawassa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-15T14:02:41.176Z"
+  },
+  {
     "job_id": "7e138fb45ef1",
     "title": "Highschool Teachers",
     "company": "Flipper International School PLC",
