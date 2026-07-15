@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "7e138fb45ef1",
+    "title": "Highschool Teachers",
+    "company": "Flipper International School PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/7G5tUcqCzN-highschool-teacherscomputer-sciencebiologychemistryphysicsmathematicsenglishbusiness-and-economicscivics",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-15T08:32:07.775Z"
+  },
+  {
     "job_id": "e7dd36fd61e3",
     "title": "Consultancy for the Development of a Commercial Agriculture Social Enterprise Model Integrating Climate-Smart Agriculture",
     "company": "Action for Social Development and Environmental Protection Organization (ASDEPO)",
