@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "233697e99363",
+    "title": "Consultancy Service for Resource Mobilization and Social Enterprise Development Training",
+    "company": "Action for Social Development and Environmental Protection Organization (ASDEPO)",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/6NntYQy1f2-tor-consultancy-service-for-resource-mobilization-and-social-enterprise-development-training",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-15T16:43:32.489Z"
+  },
+  {
+    "job_id": "4168129e1945",
+    "title": "Data Analyst",
+    "company": "Ahununu Trading PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/DzH4PAErt5-data-analyst",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-15T16:43:30.245Z"
+  },
+  {
     "job_id": "26140eb66b3a",
     "title": "Business Development and Strategy Expert",
     "company": "GIZ Sequa gGmbH",
