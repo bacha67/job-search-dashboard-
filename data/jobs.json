@@ -1,5 +1,125 @@
 [
   {
+    "job_id": "d74b3d9b2891",
+    "title": "Primary & Middle School Division Teachers",
+    "company": "SOS Hermann Gmeiner School",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/kFrNDaj8sT-primary-middle-school-division-teachers-amharic-english-math-biology-physics-civic-geography-history-sport-science-art-afan-oromo-computer-science",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-16T08:28:49.928Z"
+  },
+  {
+    "job_id": "514707d7f743",
+    "title": "Primary & Secondary School Division Teachers",
+    "company": "SOS Hermann Gmeiner School",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/9iRxReAhcD-primary-secondary-school-division-teachers-english-mathematics-chemistrygeneral-science-amharic-sidama-afoo-computer-scienceict-history-economics",
+    "location": "Hawassa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-16T08:28:47.723Z"
+  },
+  {
+    "job_id": "1331348d8fea",
+    "title": "Primary & Secondary School Division Teachers",
+    "company": "SOS Hermann Gmeiner School",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/acPWElTklA-primary-secondary-school-division-teachers-english-amharic-mathematics-sciencebiology-economics-computer-scienceict-chemistry-art-histoty-geography",
+    "location": "Jimma, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-16T08:28:45.526Z"
+  },
+  {
+    "job_id": "29fdc01ef9b7",
+    "title": "Primary & Secondary School Division Teachers",
+    "company": "SOS Hermann Gmeiner School",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/U4V0CWf6Mt-primary-secondary-school-division-teachers-english-amharic-mathematics-biology-chemistry-physics-geography-history-computer-software-specialization-ict-computer-science-art-performing-visual-arts-music-aesthetics",
+    "location": "Harar, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-16T08:28:43.306Z"
+  },
+  {
     "job_id": "233697e99363",
     "title": "Consultancy Service for Resource Mobilization and Social Enterprise Development Training",
     "company": "Action for Social Development and Environmental Protection Organization (ASDEPO)",
