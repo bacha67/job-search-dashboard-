@@ -1,5 +1,125 @@
 [
   {
+    "job_id": "cd61e61f1fd0",
+    "title": "Software Engineer Intern",
+    "company": "Tibeb Group",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/software-engineer-intern-6441d18f",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T14:29:41.965Z"
+  },
+  {
+    "job_id": "3ff43787e132",
+    "title": "Software Training Facilitator Intern",
+    "company": "Tibeb Group",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/software-training-facilitator-intern-267736cf",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T14:29:39.564Z"
+  },
+  {
+    "job_id": "6f715015d393",
+    "title": "Mid-Level Software Developer",
+    "company": "GREEN SHARE FUTURE",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/LsnCQvu4VL-mid-level-software-developer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T14:29:37.293Z"
+  },
+  {
+    "job_id": "60d10568d314",
+    "title": "Power BI Developer II",
+    "company": "Kerchanshe Trading Company",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/ds7LsdxNLd-power-bi-developer-ii",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T14:29:35.037Z"
+  },
+  {
     "job_id": "2df7cef1ff37",
     "title": "Junior IT technician",
     "company": "TTK Private limited company",
