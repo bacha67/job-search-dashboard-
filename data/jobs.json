@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "2df7cef1ff37",
+    "title": "Junior IT technician",
+    "company": "TTK Private limited company",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/HDfCCVACCI-junior-it-technician",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T09:34:35.361Z"
+  },
+  {
+    "job_id": "0b6595c9540b",
+    "title": "IT Support Officer",
+    "company": "TTK Private limited company",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/VciHbJz59Y-it-support-officer",
+    "location": "Gelan, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-20T09:34:33.137Z"
+  },
+  {
     "job_id": "d74b3d9b2891",
     "title": "Primary & Middle School Division Teachers",
     "company": "SOS Hermann Gmeiner School",
