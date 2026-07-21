@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "e1cddc2995f7",
+    "title": "Network Engineer",
+    "company": "Raras Technologies PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/DXDtCRTJXp-network-engineer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-21T14:15:13.135Z"
+  },
+  {
     "job_id": "11be9496a466",
     "title": "Junior Frontend Developer",
     "company": "Birrama Digital Commerce PLC",
