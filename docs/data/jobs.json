@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "11be9496a466",
+    "title": "Junior Frontend Developer",
+    "company": "Birrama Digital Commerce PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/JxuEsdZdMx-junior-frontend-developer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-21T03:32:18.281Z"
+  },
+  {
+    "job_id": "a78b69b6a623",
+    "title": "Junior Backend Developer",
+    "company": "Birrama Digital Commerce PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/rYvN0PVDxZ-junior-backend-developer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-21T03:32:16.037Z"
+  },
+  {
     "job_id": "cd61e61f1fd0",
     "title": "Software Engineer Intern",
     "company": "Tibeb Group",
