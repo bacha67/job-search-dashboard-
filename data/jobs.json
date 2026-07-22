@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "bea71fd5b39e",
+    "title": "Cybersecurity & IT Job Vacancies",
+    "company": "Bunna Bank S.C.",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/bunna-bank-s-c-cybersecurity-it-job-vacancies-2026-d118e817",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-22T22:13:21.819Z"
+  },
+  {
     "job_id": "5384a76703f3",
     "title": "Terms of Reference (ToR) for A firm for Development of Data Capturing and Common Software Platform for Ethiopian Health and Demographic Surveillance System sites",
     "company": "Vital Strategies",
