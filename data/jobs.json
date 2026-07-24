@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "16e4aff283ed",
+    "title": "Principal Information System (MIS) Officer",
+    "company": "Ahadu Bank S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/zfVyCqom5j-principal-information-system-mis-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-24T08:42:57.702Z"
+  },
+  {
+    "job_id": "7b4a3a9a296e",
+    "title": "Sr. Analyst, Business and Product Development",
+    "company": "Ethiopian Securities Exchange",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/3533SlzTLV-sr-analyst-business-and-product-development",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-24T08:42:55.390Z"
+  },
+  {
     "job_id": "bea71fd5b39e",
     "title": "Cybersecurity & IT Job Vacancies",
     "company": "Bunna Bank S.C.",
