@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "7a8e7dc7e21f",
+    "title": "Field Epidemiologist",
+    "company": "Ohio State Global One Health Initiative",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/jBod86ev8h-field-epidemiologist-1",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-24T16:52:24.321Z"
+  },
+  {
     "job_id": "16e4aff283ed",
     "title": "Principal Information System (MIS) Officer",
     "company": "Ahadu Bank S.C",
