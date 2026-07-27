@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "4a4d556c133e",
+    "title": "Junior IT Officer",
+    "company": "Anbesa International Bank S.C",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/anbesa-bank-ethiopia-job-vacancy-2026-junior-it-officer-fresh-graduates-0141292c",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-27T10:08:35.953Z"
+  },
+  {
     "job_id": "bbc97ae21b49",
     "title": "Information Technology Officer (IT Officer)",
     "company": "Kality Foods S.C",
