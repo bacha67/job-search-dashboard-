@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "ffe09b47233c",
+    "title": "Enterprise Business Development & Account Manager",
+    "company": "Pitron Tech Solutions",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/6Yj7TM6YDJ-enterprise-business-development-account-manager",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-29T09:01:39.639Z"
+  },
+  {
+    "job_id": "8ecc397b8c51",
+    "title": "Sales Operations & Data Analyst",
+    "company": "Ovid Real Estate",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/zljEIkGVEC-sales-operations-data-analyst",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-29T09:01:37.425Z"
+  },
+  {
     "job_id": "a0f2da2715c6",
     "title": "Cybersecurity Engineer",
     "company": "Bios Engineering and Trading Plc",
