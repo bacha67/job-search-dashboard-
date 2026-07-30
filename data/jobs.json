@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "4b15c53cf02c",
+    "title": "Milk Collection Quality Lead/Dairy Development Quality Lead",
+    "company": "Holland Dairy P.L.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/5rx9YXQRTG-milk-collection-quality-leaddairy-development-quality-lead",
+    "location": "Bishoftu, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-30T05:54:24.589Z"
+  },
+  {
+    "job_id": "b0cd8276579c",
+    "title": "Junior Rural Development/Dryland Farming Adviser",
+    "company": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/EX4QUGeJo4-junior-rural-developmentdryland-farming-adviser",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-30T05:54:22.350Z"
+  },
+  {
     "job_id": "af0c87d9497a",
     "title": "Business Analyst (Marketing Consultant)",
     "company": "Pitron Tech Solutions",
