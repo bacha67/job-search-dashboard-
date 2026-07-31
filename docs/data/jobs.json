@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "f82d4879460a",
+    "title": "Government Digital Payments Analyst",
+    "company": "United Nations Development Programme (UNDP)",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/undp-ethiopia-job-vacancy-2026-government-digital-payments-analyst-c800e94a",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-31T09:14:39.239Z"
+  },
+  {
+    "job_id": "450231d08e00",
+    "title": "Junior Rural Development / Dryland Farming Adviser",
+    "company": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/giz-ethiopia-job-vacancy-2026-junior-rural-development-dryland-farming-adviser-d2063ac6",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-07-31T09:14:36.854Z"
+  },
+  {
     "job_id": "a8b6154e369a",
     "title": "CMMS Database Officer",
     "company": "BGI Ethiopia",
