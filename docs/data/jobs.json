@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "1f1c2a1933f2",
+    "title": "Information Technology Trainee Officer-I",
+    "company": "Amhara Bank S.C.",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/3bdlJVPmw6-information-technology-trainee-officer-i-fresh-graduates",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-01T10:46:52.728Z"
+  },
+  {
+    "job_id": "354e1318a23a",
+    "title": "Liquidity & Market Risk Analyst",
+    "company": "Amhara Bank S.C.",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/9H4IEvxdmu-liquidity-market-risk-analyst",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-01T10:46:50.501Z"
+  },
+  {
     "job_id": "8256d2d03c06",
     "title": "Individual Consultants for Phase II Enhancement, Expansion, Scale-up and AI Integration of the Ethiopian Apiculture Management Information System (APMIS)",
     "company": "International Centre of Insect Physiology and Ecology",
