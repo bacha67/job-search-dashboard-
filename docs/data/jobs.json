@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "8dec76b902f3",
+    "title": "IT Officer",
+    "company": "Nib International Bank S.C",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/nib-international-bank-s-c-job-vacancy-2026-it-officer-branch-manager-i-branch-manager-ii-e4d748b6",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-01T13:45:58.244Z"
+  },
+  {
     "job_id": "1f1c2a1933f2",
     "title": "Information Technology Trainee Officer-I",
     "company": "Amhara Bank S.C.",
