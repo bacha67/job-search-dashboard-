@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "95a251dc7dbc",
+    "title": "IT Officer",
+    "company": "SOS Hermann Gmeiner School",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/TPUcYeEI1L-it-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-04T09:00:30.937Z"
+  },
+  {
+    "job_id": "9536a6c93115",
+    "title": "Consultancy Service for Development of a Business Model, Resource Mobilization Strategy, and Partnership Policy",
+    "company": "HelpAge Ethiopia",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/TUlQcR2N4s-terms-of-reference-tor-consultancy-service-for-development-of-a-business-model-resource-mobilization-strategy-and-partnership-policy",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-04T09:00:28.731Z"
+  },
+  {
     "job_id": "fcbd0de695ce",
     "title": "Power BI Developer II",
     "company": "Kerchanshe Trading Company",
