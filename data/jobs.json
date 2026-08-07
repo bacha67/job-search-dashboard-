@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "92f4c140c4cd",
+    "title": "IT Officer",
+    "company": "Hemen Medical Service Plc",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/ctCVUbi26e-it-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-07T07:39:56.959Z"
+  },
+  {
+    "job_id": "b0204c1fdfec",
+    "title": "DevOps & Cloud Infrastructure Engineer",
+    "company": "Birrama Digital Commerce PLC",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/ouXW25dzCK-devops-cloud-infrastructure-engineer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-07T07:39:54.763Z"
+  },
+  {
     "job_id": "b6f7e5b730db",
     "title": "DevOps Engineer",
     "company": "Safaricom Ethiopia",
