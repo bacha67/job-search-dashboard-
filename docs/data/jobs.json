@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "7820a9a40d38",
+    "title": "Business Development Expert III",
+    "company": "Ethiopian Engineering Corporation",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/PmCC2KzzaC-business-development-expert-iii",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-10T10:30:08.064Z"
+  },
+  {
     "job_id": "48a8e6533352",
     "title": "Strategic Business Development Division Head",
     "company": "Redfox Electromechanical Engineering",
