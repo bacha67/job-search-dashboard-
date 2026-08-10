@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "73e29a91a963",
+    "title": "Salesforce Technical Lead / Software Development Manager",
+    "company": "Biztech",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/bGsQoFVGSC-salesforce-technical-lead-software-development-manager",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-10T16:08:44.168Z"
+  },
+  {
     "job_id": "7820a9a40d38",
     "title": "Business Development Expert III",
     "company": "Ethiopian Engineering Corporation",
