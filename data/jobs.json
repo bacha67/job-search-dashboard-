@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "8d35c878b1d1",
+    "title": "IT Officer",
+    "company": "GS Group",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/KJB9a3LmuF-it-officer",
+    "location": "South Sudan",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-10T19:09:20.176Z"
+  },
+  {
     "job_id": "73e29a91a963",
     "title": "Salesforce Technical Lead / Software Development Manager",
     "company": "Biztech",
