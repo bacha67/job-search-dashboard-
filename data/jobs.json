@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "1bfd9c865c2c",
+    "title": "Data Analyst & Reporting Officer",
+    "company": "Horra Corporate Group",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/FWgURNp16e-data-analysis-reporting-officer",
+    "location": "Gelan, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-11T16:10:00.038Z"
+  },
+  {
     "job_id": "239168150cb4",
     "title": "Junior English and Mathematics Teachers",
     "company": "Bethlehem Youth Academy",
