@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "af486d0fdcc2",
+    "title": "Executive I – Management Information System (MIS)",
+    "company": "Kadisco Paint and Adhesive Industry S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/jUK8soH8Fw-executive-i-management-information-system-mis",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-12T08:02:44.876Z"
+  },
+  {
     "job_id": "1bfd9c865c2c",
     "title": "Data Analyst & Reporting Officer",
     "company": "Horra Corporate Group",
