@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "b437b45832e0",
+    "title": "DATABASE ADMINISTRATOR",
+    "company": "Toppan Security Ethiopia S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/I8yz9KHdDa-database-administrator",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-12T16:08:40.346Z"
+  },
+  {
+    "job_id": "39d5803e57b2",
+    "title": "IT Support & Infrastructure Engineer",
+    "company": "Toppan Security Ethiopia S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/PCOQ9jb2qj-it-support-infrastructure-engineer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-12T16:08:38.157Z"
+  },
+  {
     "job_id": "d94d9eb80c7c",
     "title": "Consultancy for the Development of an Evidence-Based Policy Brief on Social Protection Gaps Affecting Older People",
     "company": "Ethiopian Women Development Organization (EWDO)",
