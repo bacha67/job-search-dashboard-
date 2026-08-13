@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "400ae0fbb652",
+    "title": "IT Support & Systems Technician",
+    "company": "Hexagon Computer Systems",
+    "source": "ETCareers",
+    "link": "https://etcareers.com/jobs/hexagon-computer-systems-job-vacancy-2026-it-support-systems-technician-1ec6a96a",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-13T19:16:07.822Z"
+  },
+  {
     "job_id": "37934e1fa477",
     "title": "IT Support & Systems Technician",
     "company": "Hexagon Computer Systems",
