@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "37934e1fa477",
+    "title": "IT Support & Systems Technician",
+    "company": "Hexagon Computer Systems",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/rjnomQRH2E-it-support-systems-technician",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-13T16:05:27.822Z"
+  },
+  {
     "job_id": "071fe4ee75c2",
     "title": "Cybersecurity Presales Engineer",
     "company": "Synertech Technology PLC",
