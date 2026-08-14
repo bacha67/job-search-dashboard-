@@ -1,5 +1,125 @@
 [
   {
+    "job_id": "8825ba3f2111",
+    "title": "Network Engineer",
+    "company": "AMG Holdings",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/JCvmaSBChz-network-engineer",
+    "location": "Akaki/Gelan, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T10:21:54.962Z"
+  },
+  {
+    "job_id": "2fa401d43a21",
+    "title": "IT Infrastructure & Network Engineer",
+    "company": "DINA Investment Group",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/2mnCOP0GV3-dina-food-processing-it-manager",
+    "location": "Adama, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T10:21:52.765Z"
+  },
+  {
+    "job_id": "4282ad4ff49c",
+    "title": "ICT Support Officer",
+    "company": "DINA Investment Group",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/nNrKU3HQmY-dina-investment-group-ict-support-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T10:21:50.579Z"
+  },
+  {
+    "job_id": "4cc13389e093",
+    "title": "IT Officer",
+    "company": "BW Plus Pearl Addis (Kanya Business)",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/yMmot9n0hg-it-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T10:21:48.349Z"
+  },
+  {
     "job_id": "9a13b2e323dd",
     "title": "Software Engineer",
     "company": "AMG Holdings",
