@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "5dec5b320937",
+    "title": "Market System Analyst - Regional",
+    "company": "Global Communities",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/D9sP1rFBCj-market-system-analyst-regional",
+    "location": "Sidama Region Hawassa and South Ethiopia Region- Arabminch, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T04:56:36.944Z"
+  },
+  {
     "job_id": "da4f6be52fa4",
     "title": "Business Analyst",
     "company": "HEINEKEN ETHIOPIA",
