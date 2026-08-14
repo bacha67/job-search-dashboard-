@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "9e75b00a8617",
+    "title": "IT Officer",
+    "company": "Ovid Real Estate",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/UCl5o1tAvJ-it-officer",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-14T16:01:14.996Z"
+  },
+  {
     "job_id": "8825ba3f2111",
     "title": "Network Engineer",
     "company": "AMG Holdings",
