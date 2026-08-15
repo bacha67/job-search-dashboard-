@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "5d19b5bb29aa",
+    "title": "Policy Ecosystem Analyst",
+    "company": "VSO Ethiopia",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/DDVYiQv27V-policy-ecosystem-analyst",
+    "location": "Addis Ababa, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-15T12:56:39.435Z"
+  },
+  {
     "job_id": "a84dbf173762",
     "title": "IT Support Officer",
     "company": "Hijra Bank S.C",
