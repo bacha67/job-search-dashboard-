@@ -1,5 +1,65 @@
 [
   {
+    "job_id": "a84dbf173762",
+    "title": "IT Support Officer",
+    "company": "Hijra Bank S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/vuRosBHASC-it-support-officer",
+    "location": "Head Office, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-15T09:34:35.922Z"
+  },
+  {
+    "job_id": "bbe3ae4235ae",
+    "title": "Junior IT Support Officer",
+    "company": "Hijra Bank S.C",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/wkZmeEYTsu-junior-it-support-officer",
+    "location": "Head Office, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-15T09:34:33.671Z"
+  },
+  {
     "job_id": "9e75b00a8617",
     "title": "IT Officer",
     "company": "Ovid Real Estate",
