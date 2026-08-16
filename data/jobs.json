@@ -1,5 +1,35 @@
 [
   {
+    "job_id": "d8f493c1ce1c",
+    "title": "Human Resource System Administrator",
+    "company": "Top Beverages Industries Trading",
+    "source": "EthioJobs",
+    "link": "https://ethiojobs.net/jobs/x5e9QGMKRy-human-resource-system-administrator",
+    "location": "Tatek, Ethiopia",
+    "career_level": "Entry Level",
+    "job_type": "",
+    "degree_required": "",
+    "experience": "",
+    "is_top_rated": false,
+    "metrics": {
+      "salary": 5,
+      "upgrade": 5,
+      "skills": 1,
+      "reputation": 5,
+      "overall_average": 3.7
+    },
+    "extracted_skills": [
+      "General IT"
+    ],
+    "snapshot": [],
+    "score_reasons": {
+      "salary": "",
+      "upgrade": "",
+      "skills": ""
+    },
+    "timestamp": "2026-08-16T09:36:41.289Z"
+  },
+  {
     "job_id": "5d19b5bb29aa",
     "title": "Policy Ecosystem Analyst",
     "company": "VSO Ethiopia",
